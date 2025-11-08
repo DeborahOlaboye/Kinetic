@@ -1,10 +1,11 @@
 // src/store.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { ProtocolType } from "@/utils/constants";
 
 interface Strategy {
   address: string;
-  protocol: "Morpho" | "Sky";
+  protocol: ProtocolType;
   name: string;
   totalDeposited: string; // Changed to string for localStorage compatibility
   yieldGenerated: string; // Changed to string for localStorage compatibility
