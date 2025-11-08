@@ -1,9 +1,15 @@
-# Octant v2 Hackathon dApp Boilerplate
+## Foundry
 
-A production-ready React boilerplate optimized for hackathon development. Get started building your dApp in minutes with modern tooling and essential libraries pre-configured.
+**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
 
-## Quick Start
+Foundry consists of:
 
+- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
+- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
+- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
+- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+
+## Documentation
 ```bash
 git clone https://github.com/golemfoundation/octant-v2-hackathon-dapp-boilerplate.git
 cd octant-v2-hackathon-dapp-boilerplate
@@ -81,117 +87,56 @@ Kinetic now supports **Aave v3** as a third protocol option for generating yield
 
 ## Project Structure
 
-```
-src/
-├── abis/                # Smart contract ABIs
-│   ├── MorphoCompounderStrategyFactory.json
-│   ├── SkyCompounderStrategyFactory.json
-│   └── YieldDonatingTokenizedStrategy.json
-├── components/
-│   └── ui/              # ShadCN UI components
-├── pages/               # Your app pages/routes
-│   ├── About.tsx
-│   └── [add more here]
-├── lib/
-│   └── utils.ts         # Utility functions (cn, etc.)
-├── store.ts             # Zustand global state
-├── App.tsx              # Routes and app shell
-└── main.tsx             # App entry point
+https://book.getfoundry.sh/
+
+## Usage
+
+### Build
+
+```shell
+$ forge build
 ```
 
-## Development Guide
+### Test
 
-### Exploring Components
-The homepage displays all 17 pre-built components:
-- Interactive demos you can test immediately
-- See how each component looks and behaves
-- All components are styled for the dark theme
-
-### Adding New Pages
-1. Create a new file in `src/pages/` (e.g., `Dashboard.tsx`)
-2. Add route in `src/App.tsx`:
-```tsx
-<Route path="dashboard" element={<Dashboard />} />
+```shell
+$ forge test
 ```
 
-### Using Zustand State
-```tsx
-import { useCounterStore } from '@/store';
+### Format
 
-function MyComponent() {
-  const { count, increment } = useCounterStore();
-  return <button onClick={increment}>{count}</button>;
-}
+```shell
+$ forge fmt
 ```
 
-### Using ShadCN Components
-```tsx
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+### Gas Snapshots
 
-<Card>
-  <Button>Click me</Button>
-</Card>
+```shell
+$ forge snapshot
 ```
 
-### Using Smart Contract ABIs
-```tsx
-import MorphoABI from '@/abis/MorphoCompounderStrategyFactory.json';
-import { useReadContract } from 'wagmi';
+### Anvil
 
-function MyComponent() {
-  const { data } = useReadContract({
-    address: '0x...', // Contract address
-    abi: MorphoABI,
-    functionName: 'createStrategy',
-    args: [/* your args */]
-  });
-
-  return <div>{/* Your component */}</div>;
-}
+```shell
+$ anvil
 ```
 
-### Styling with Tailwind
-Use utility classes directly in JSX:
-```tsx
-<div className="flex items-center gap-4 rounded-lg border p-6">
-  <h1 className="text-2xl font-bold">Hello</h1>
-</div>
+### Deploy
+
+```shell
+$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
 ```
 
-## Available Scripts
+### Cast
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-
-## Build for Production
-
-```bash
-npm run build
+```shell
+$ cast <subcommand>
 ```
 
-Output will be in the `dist/` directory, ready to deploy to any static hosting service.
+### Help
 
-## Customization
-
-### Add More ShadCN Components
-Visit [ui.shadcn.com](https://ui.shadcn.com) and use their CLI:
-```bash
-npx shadcn@latest add [component-name]
+```shell
+$ forge --help
+$ anvil --help
+$ cast --help
 ```
-
-### Modify Tailwind Config
-Edit `tailwind.config.js` for custom colors, fonts, etc.
-
-### Configure Build
-Edit `vite.config.ts` for build optimizations.
-
-## Tips for Hackathons
-
-1. **Focus on features** - UI components are ready, just build your logic
-2. **Use Zustand** for simple global state - no Redux boilerplate
-3. **Leverage Tailwind** for rapid styling - no CSS files needed
-4. **ShadCN components** are accessible and mobile-responsive out of the box
-5. **TypeScript** helps catch bugs early - use it!

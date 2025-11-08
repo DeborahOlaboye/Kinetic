@@ -16,6 +16,11 @@ export const SKY_FACTORY_ADDRESS = (
   "0x0000000000000000000000000000000000000000"
 ) as `0x${string}`;
 
+// Deployed PaymentSplitter instance (Chain 8)
+// Deploy using: forge script script/DeployPaymentSplitterWithProxy.s.sol
+export const PAYMENT_SPLITTER_ADDRESS = (
+  import.meta.env.VITE_PAYMENT_SPLITTER_ADDRESS ||
+  "0xc4AE01295cfAE3DA96b044F1a4284A93837a644C"
 export const AAVE_VAULT_ADDRESS = "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2" as `0x${string}`; // Aave v3 Pool
 
 // Recipient Splitter Factory (for multi-recipient distribution)
