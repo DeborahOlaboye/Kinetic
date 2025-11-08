@@ -14,14 +14,24 @@ export function ProtocolSelector({ selected, onSelect }: ProtocolSelectorProps) 
       name: 'Morpho',
       description: 'Optimized lending protocol with efficient capital allocation',
       apy: '~5-8%',
-      icon: '🔷'
+      icon: '🔷',
+      color: 'blue'
     },
     {
       type: ProtocolType.SKY,
       name: 'Sky',
       description: 'Decentralized savings protocol powered by MakerDAO',
       apy: '~4-6%',
-      icon: '☁️'
+      icon: '☁️',
+      color: 'purple'
+    },
+    {
+      type: ProtocolType.AAVE,
+      name: 'Aave v3',
+      description: 'Battle-tested lending protocol with deep liquidity',
+      apy: '~4-6%',
+      icon: '🏦',
+      color: 'pink'
     }
   ];
 
@@ -32,13 +42,28 @@ export function ProtocolSelector({ selected, onSelect }: ProtocolSelectorProps) 
         <p className="text-gray-400">Choose where to generate yield for public goods</p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        {protocols.map((protocol) => (
+      <div className="grid md:grid-cols-3 gap-4">
+        {protocols.map((protocol) => {
+          const getBorderColor = () => {
+            if (protocol.color === 'blue') return 'border-blue-500 bg-blue-500/10';
+            if (protocol.color === 'purple') return 'border-purple-500 bg-purple-500/10';
+            if (protocol.color === 'pink') return 'border-pink-500 bg-pink-500/10';
+            return 'border-blue-500 bg-blue-500/10';
+          };
+
+          const getHoverColor = () => {
+            if (protocol.color === 'blue') return 'hover:border-blue-500';
+            if (protocol.color === 'purple') return 'hover:border-purple-500';
+            if (protocol.color === 'pink') return 'hover:border-pink-500';
+            return 'hover:border-blue-500';
+          };
+
+          return (
           <Card
             key={protocol.type}
-            className={`p-6 cursor-pointer transition-all hover:border-blue-500 ${
+            className={`p-6 cursor-pointer transition-all ${getHoverColor()} ${
               selected === protocol.type
-                ? 'border-blue-500 bg-blue-500/10'
+                ? getBorderColor()
                 : 'border-gray-700'
             }`}
             onClick={() => onSelect(protocol.type)}
@@ -58,7 +83,8 @@ export function ProtocolSelector({ selected, onSelect }: ProtocolSelectorProps) 
               </div>
             )}
           </Card>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
