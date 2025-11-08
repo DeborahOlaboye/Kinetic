@@ -1,0 +1,25 @@
+# Node / Vite
+node_modules/
+dist/
+dist-ssr/
+.vite/
+
+# Env
+.env
+.env.local
+.env.*
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing / misc
+coverage/
