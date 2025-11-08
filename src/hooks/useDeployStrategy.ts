@@ -1,5 +1,5 @@
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { ProtocolType, MORPHO_FACTORY_ADDRESS, SKY_FACTORY_ADDRESS, AAVE_POOL_ADDRESS, USDC_ADDRESS } from '@/utils/constants';
+import { ProtocolType, MORPHO_FACTORY_ADDRESS, SKY_FACTORY_ADDRESS, AAVE_POOL_ADDRESS, USDC_ADDRESS, SPLITTER_CHAIN_ID } from '@/utils/constants';
 import MorphoFactoryABI from '@/abis/MorphoCompounderStrategyFactory.json';
 import SkyFactoryABI from '@/abis/SkyCompounderStrategyFactory.json';
 import { Recipient } from '@/components/RecipientForm';
@@ -125,6 +125,7 @@ export function useDeployStrategy() {
             donationAddress,
             0,
           ],
+          chainId: SPLITTER_CHAIN_ID,
         });
         break;
 

@@ -57,8 +57,8 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
   const { deploy, strategyAddress, deployParams, isPending, isConfirming, isSuccess, error } =
     effectiveUseSplitter ? withSplitter : direct;
 
-  const strategyHash = useSplitter ? withSplitter.strategyHash : direct.hash;
-  const step = useSplitter ? withSplitter.step : undefined;
+  const strategyHash = effectiveUseSplitter ? withSplitter.strategyHash : direct.hash;
+  const step = effectiveUseSplitter ? withSplitter.step : undefined;
 
   const totalPercentage = recipients.reduce((sum, r) => sum + r.percentage, 0);
   const isValid = totalPercentage === 100 && recipients.length > 0 && protocol !== null;
@@ -138,13 +138,17 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
       const addressToSave = strategyAddress || strategyHash;
 
       // Save the strategy to the store
+      const recipientsToSave = effectiveUseSplitter
+        ? [{ name: 'Payment Splitter', address: (withSplitter.splitterAddress || (PAYMENT_SPLITTER_ADDRESS as `0x${string}`)) as string, percentage: 100 }]
+        : deployParams.recipients;
+
       addStrategy({
         address: addressToSave,
         protocol: deployParams.protocol,
         name: deployParams.name,
-        totalDeposited: BigInt(0), // Will be updated when user deposits
-        yieldGenerated: BigInt(0), // Will be updated from contract
-        recipients: deployParams.recipients,
+        totalDeposited: BigInt(0),
+        yieldGenerated: BigInt(0),
+        recipients: recipientsToSave,
       });
 
       console.log('Strategy saved to store!');

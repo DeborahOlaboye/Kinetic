@@ -1,5 +1,5 @@
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { PAYMENT_SPLITTER_ADDRESS } from '@/utils/constants';
+import { PAYMENT_SPLITTER_ADDRESS, SPLITTER_CHAIN_ID } from '@/utils/constants';
 import PaymentSplitterABI from '@/abis/PaymentSplitter.json';
 import { Address } from 'viem';
 
@@ -13,12 +13,13 @@ export function useClaimETH() {
     hash,
   });
 
-  const claimETH = async (payeeAddress: Address) => {
+  const claimETH = async (payeeAddress: Address, splitterOverride?: Address) => {
     writeContract({
-      address: PAYMENT_SPLITTER_ADDRESS,
+      address: (splitterOverride || PAYMENT_SPLITTER_ADDRESS) as Address,
       abi: PaymentSplitterABI,
       functionName: 'release',
       args: [payeeAddress],
+      chainId: SPLITTER_CHAIN_ID,
     });
   };
 
@@ -42,12 +43,13 @@ export function useClaimToken() {
     hash,
   });
 
-  const claimToken = async (tokenAddress: Address, payeeAddress: Address) => {
+  const claimToken = async (tokenAddress: Address, payeeAddress: Address, splitterOverride?: Address) => {
     writeContract({
-      address: PAYMENT_SPLITTER_ADDRESS,
+      address: (splitterOverride || PAYMENT_SPLITTER_ADDRESS) as Address,
       abi: PaymentSplitterABI,
       functionName: 'release',
       args: [tokenAddress, payeeAddress],
+      chainId: SPLITTER_CHAIN_ID,
     });
   };
 

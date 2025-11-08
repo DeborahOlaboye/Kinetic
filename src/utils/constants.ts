@@ -35,11 +35,20 @@ export const AAVE_POOL_ADDRESS = (
   "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
 ) as `0x${string}`;
 
-// Recipient Splitter Factory (for multi-recipient distribution)
+// Recipient Splitter Factory (legacy)
 export const SPLITTER_FACTORY_ADDRESS = (
   import.meta.env.VITE_SPLITTER_FACTORY_ADDRESS ||
   "0x0000000000000000000000000000000000000000"
 ) as `0x${string}`;
+
+// Payment Splitter clone factory (Option B)
+export const PAYMENT_SPLITTER_FACTORY_ADDRESS = (
+  import.meta.env.VITE_PAYMENT_SPLITTER_FACTORY_ADDRESS ||
+  "0x0000000000000000000000000000000000000000"
+) as `0x${string}`;
+
+// Chain ID where PaymentSplitter is deployed (default mainnet fork=1 unless overridden)
+export const SPLITTER_CHAIN_ID = Number(import.meta.env.VITE_SPLITTER_CHAIN_ID || 1);
 
 // Protocol types
 export enum ProtocolType {
@@ -57,4 +66,15 @@ export const SUPPORTED_ASSETS = [
   { symbol: "USDC", address: USDC_ADDRESS, decimals: 6 },
   { symbol: "DAI", address: DAI_ADDRESS, decimals: 18 },
   { symbol: "USDT", address: USDT_ADDRESS, decimals: 6 }
+];
+
+// Aave v3 aTokens (mainnet)
+export const AAVE_AUSDC_ADDRESS = "0x98c23e9d8f34fefb1b7bd6a91b7ff122f4e16f5c" as `0x${string}`;
+
+// Default tokens to show on the Payment Splitter dashboard (includes aUSDC for Aave flow)
+export const SPLITTER_DEFAULT_TOKENS = [
+  { symbol: "USDC", address: USDC_ADDRESS, decimals: 6 },
+  { symbol: "DAI", address: DAI_ADDRESS, decimals: 18 },
+  { symbol: "USDT", address: USDT_ADDRESS, decimals: 6 },
+  { symbol: "aUSDC", address: AAVE_AUSDC_ADDRESS, decimals: 6 },
 ];

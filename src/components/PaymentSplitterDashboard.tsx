@@ -6,14 +6,23 @@ import { Separator } from '@/components/ui/separator';
 import { usePaymentSplitter, useReleasableToken, usePaymentSplitterPayees } from '@/hooks/usePaymentSplitter';
 import { useClaimETH, useClaimToken } from '@/hooks/useClaimFunds';
 import { formatEther, formatUnits } from 'viem';
-import { SUPPORTED_ASSETS } from '@/utils/constants';
+import { SPLITTER_DEFAULT_TOKENS } from '@/utils/constants';
 import { toast } from 'sonner';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useAppStore } from '@/store';
 
 export function PaymentSplitterDashboard() {
   const { address } = useAccount();
-  const { payees } = usePaymentSplitterPayees();
+  const { deployedStrategies } = useAppStore();
+
+  // Prefer the most recently deployed strategy's first recipient as the active PaymentSplitter
+  const activeSplitter = useMemo(() => {
+    const last = deployedStrategies[deployedStrategies.length - 1];
+    return (last?.recipients?.[0]?.address || null) as `0x${string}` | null;
+  }, [deployedStrategies]);
+
+  const { payees } = usePaymentSplitterPayees(activeSplitter || undefined);
 
   const {
     shares,
@@ -23,7 +32,7 @@ export function PaymentSplitterDashboard() {
     releasedETH,
     totalReleased,
     refetchReleasableETH,
-  } = usePaymentSplitter(address);
+  } = usePaymentSplitter(address, activeSplitter || undefined);
 
   const {
     claimETH,
@@ -144,7 +153,7 @@ export function PaymentSplitterDashboard() {
             </div>
 
             <Button
-              onClick={() => address && claimETH(address)}
+              onClick={() => address && claimETH(address, activeSplitter || undefined)}
               disabled={!hasClaimableETH || isClaimingETH || isConfirmingETH}
               className="bg-green-600 hover:bg-green-700"
             >
@@ -184,13 +193,14 @@ export function PaymentSplitterDashboard() {
         <h3 className="text-xl font-bold mb-4">ERC20 Tokens</h3>
 
         <div className="space-y-4">
-          {SUPPORTED_ASSETS.map((asset) => (
+          {SPLITTER_DEFAULT_TOKENS.map((asset) => (
             <TokenClaimRow
               key={asset.address}
               tokenAddress={asset.address}
               tokenSymbol={asset.symbol}
               tokenDecimals={asset.decimals}
               payeeAddress={address}
+              splitterAddress={activeSplitter || undefined}
               onClaim={claimToken}
               isPending={isClaimingToken || isConfirmingToken}
             />
@@ -218,6 +228,7 @@ function TokenClaimRow({
   tokenSymbol,
   tokenDecimals,
   payeeAddress,
+  splitterAddress,
   onClaim,
   isPending,
 }: {
@@ -225,10 +236,11 @@ function TokenClaimRow({
   tokenSymbol: string;
   tokenDecimals: number;
   payeeAddress: `0x${string}`;
+  splitterAddress?: `0x${string}`;
   onClaim: (tokenAddress: `0x${string}`, payeeAddress: `0x${string}`) => void;
   isPending: boolean;
 }) {
-  const { releasableToken, releasedToken } = useReleasableToken(tokenAddress, payeeAddress);
+  const { releasableToken, releasedToken } = useReleasableToken(tokenAddress, payeeAddress, splitterAddress);
   const hasClaimable = releasableToken && releasableToken > 0n;
 
   return (
@@ -246,7 +258,7 @@ function TokenClaimRow({
       </div>
 
       <Button
-        onClick={() => onClaim(tokenAddress, payeeAddress)}
+        onClick={() => onClaim(tokenAddress, payeeAddress, splitterAddress)}
         disabled={!hasClaimable || isPending}
         variant={hasClaimable ? 'default' : 'outline'}
         size="sm"
@@ -274,7 +286,7 @@ function PayeeRow({
   index: number;
   isCurrentUser: boolean;
 }) {
-  const { shares } = usePaymentSplitter(address);
+  const { shares } = usePaymentSplitter(address, undefined);
 
   return (
     <div className="flex justify-between items-center p-3 bg-gray-800/30 rounded-lg">
