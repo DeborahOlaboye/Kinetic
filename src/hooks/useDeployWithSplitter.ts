@@ -8,6 +8,8 @@ interface DeployParams {
   name: string;
   recipients: Recipient[];
   userAddress: `0x${string}`;
+  assetAddress?: `0x${string}`;
+  amount?: bigint;
 }
 
 export function useDeployWithSplitter() {
@@ -46,6 +48,8 @@ export function useDeployWithSplitter() {
         address: splitterAddress,
         percentage: 100,
       }],
+      assetAddress: params.assetAddress,
+      amount: params.amount,
     });
   };
 

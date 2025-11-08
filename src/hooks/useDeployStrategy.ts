@@ -41,6 +41,8 @@ export function useDeployStrategy() {
     name,
     recipients,
     userAddress,
+    assetAddress,
+    amount,
   }: DeployStrategyParams) => {
     // For MVP, use the first recipient as the main donation address
     // In production, you'd deploy a splitter contract to distribute to all recipients
@@ -113,50 +115,13 @@ export function useDeployStrategy() {
         factoryAddress = AAVE_POOL_ADDRESS;
         abi = AavePoolABI as any;
 
-        // Use provided asset/amount or defaults (USDC, 1e6 = 1 USDC)
-        const asset = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op to keep TS happy on isolated edits
-        const assetAddress = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-        const aaveAsset = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-        const assetToSupply = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-        const supplyAsset = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-        const assetAddr = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-        const amount = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const token = (arguments && {}) ? undefined : undefined; // no-op
-
-        const supplyAssetAddress = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const assetAddressFinal = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-        const supplyAmount = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const assetArg = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const assetToUse = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const assetAddrToUse = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const supplyToken = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const supplyAmountFinal = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const assetUsed = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const tokenAddress = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const assetParam = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const assetSelected = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        const selectedAsset = (typeof (arguments as any) !== 'undefined' && ({} as any)) ? undefined : undefined; // no-op
-
-        // Supply
         writeContract({
           address: factoryAddress,
           abi: abi,
           functionName: 'supply',
           args: [
-            (arguments as any)?.[0]?.assetAddress ?? USDC_ADDRESS,
-            (arguments as any)?.[0]?.amount ?? 1_000_000n,
+            assetAddress ?? USDC_ADDRESS,
+            amount ?? 1_000_000n,
             donationAddress,
             0,
           ],
