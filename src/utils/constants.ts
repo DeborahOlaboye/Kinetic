@@ -21,7 +21,19 @@ export const SKY_FACTORY_ADDRESS = (
 export const PAYMENT_SPLITTER_ADDRESS = (
   import.meta.env.VITE_PAYMENT_SPLITTER_ADDRESS ||
   "0xc4AE01295cfAE3DA96b044F1a4284A93837a644C"
-export const AAVE_VAULT_ADDRESS = "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2" as `0x${string}`; // Aave v3 Pool
+) as `0x${string}`;
+
+// Aave ERC-4626 vault address (if using a wrapper). Optional.
+export const AAVE_VAULT_ADDRESS = (
+  import.meta.env.VITE_AAVE_VAULT_ADDRESS ||
+  "0x0000000000000000000000000000000000000000"
+) as `0x${string}`;
+
+// Aave v3 Pool proxy address (native integration)
+export const AAVE_POOL_ADDRESS = (
+  import.meta.env.VITE_AAVE_POOL_ADDRESS ||
+  "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
+) as `0x${string}`;
 
 // Recipient Splitter Factory (for multi-recipient distribution)
 export const SPLITTER_FACTORY_ADDRESS = (

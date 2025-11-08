@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { usePublicClient } from 'wagmi';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
-import { MORPHO_FACTORY_ADDRESS, SKY_FACTORY_ADDRESS, PAYMENT_SPLITTER_ADDRESS } from '@/utils/constants';
+import { MORPHO_FACTORY_ADDRESS, SKY_FACTORY_ADDRESS, PAYMENT_SPLITTER_ADDRESS, AAVE_POOL_ADDRESS } from '@/utils/constants';
 
 export function CheckContracts() {
   const [results, setResults] = useState<Record<string, string>>({});
@@ -20,10 +20,10 @@ export function CheckContracts() {
         ? `✅ EXISTS (${morphoCode.length} bytes)`
         : '❌ NOT DEPLOYED';
 
-      // Check Sky Factory
-      const skyCode = await publicClient?.getBytecode({ address: SKY_FACTORY_ADDRESS });
-      newResults['Sky Factory'] = skyCode && skyCode !== '0x'
-        ? `✅ EXISTS (${skyCode.length} bytes)`
+      // Check Aave v3 Pool (proxy)
+      const aaveCode = await publicClient?.getBytecode({ address: AAVE_POOL_ADDRESS });
+      newResults['Aave v3 Pool'] = aaveCode && aaveCode !== '0x'
+        ? `✅ EXISTS (${aaveCode.length} bytes)`
         : '❌ NOT DEPLOYED';
 
       // Check PaymentSplitter
@@ -51,8 +51,8 @@ export function CheckContracts() {
           <div className="font-mono text-gray-400">{MORPHO_FACTORY_ADDRESS}</div>
         </div>
         <div className="text-xs">
-          <div className="font-bold">Sky Factory:</div>
-          <div className="font-mono text-gray-400">{SKY_FACTORY_ADDRESS}</div>
+          <div className="font-bold">Aave v3 Pool:</div>
+          <div className="font-mono text-gray-400">{AAVE_POOL_ADDRESS}</div>
         </div>
         <div className="text-xs">
           <div className="font-bold">Payment Splitter:</div>
