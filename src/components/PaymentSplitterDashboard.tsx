@@ -214,7 +214,13 @@ export function PaymentSplitterDashboard() {
 
         <div className="space-y-2">
           {payees.map((payee, index) => (
-            <PayeeRow key={payee} address={payee} index={index} isCurrentUser={payee === address} />
+            <PayeeRow
+              key={payee}
+              address={payee}
+              index={index}
+              isCurrentUser={payee === address}
+              splitterAddress={activeSplitter || undefined}
+            />
           ))}
         </div>
       </Card>
@@ -237,7 +243,7 @@ function TokenClaimRow({
   tokenDecimals: number;
   payeeAddress: `0x${string}`;
   splitterAddress?: `0x${string}`;
-  onClaim: (tokenAddress: `0x${string}`, payeeAddress: `0x${string}`) => void;
+  onClaim: (tokenAddress: `0x${string}`, payeeAddress: `0x${string}`, splitterOverride?: `0x${string}`) => void;
   isPending: boolean;
 }) {
   const { releasableToken, releasedToken } = useReleasableToken(tokenAddress, payeeAddress, splitterAddress);
@@ -281,12 +287,14 @@ function PayeeRow({
   address,
   index,
   isCurrentUser,
+  splitterAddress,
 }: {
   address: `0x${string}`;
   index: number;
   isCurrentUser: boolean;
+  splitterAddress?: `0x${string}`;
 }) {
-  const { shares } = usePaymentSplitter(address, undefined);
+  const { shares } = usePaymentSplitter(address, splitterAddress);
 
   return (
     <div className="flex justify-between items-center p-3 bg-gray-800/30 rounded-lg">
