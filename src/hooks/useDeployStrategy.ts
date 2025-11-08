@@ -1,7 +1,8 @@
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { ProtocolType, MORPHO_FACTORY_ADDRESS, SKY_FACTORY_ADDRESS } from '@/utils/constants';
+import { ProtocolType, MORPHO_FACTORY_ADDRESS, SKY_FACTORY_ADDRESS, AAVE_VAULT_ADDRESS } from '@/utils/constants';
 import MorphoFactoryABI from '@/abis/MorphoCompounderStrategyFactory.json';
 import SkyFactoryABI from '@/abis/SkyCompounderStrategyFactory.json';
+import AaveABI from '@/abis/AaveATokenVault.json';
 import { Recipient } from '@/components/RecipientForm';
 
 interface DeployStrategyParams {
@@ -41,41 +42,76 @@ export function useDeployStrategy() {
     // Zero address for tokenized strategy (can be configured later)
     const tokenizedStrategyAddress = '0x0000000000000000000000000000000000000000' as `0x${string}`;
 
-    if (protocol === ProtocolType.MORPHO) {
-      // Morpho requires a compounder vault address
-      // For MVP, using zero address - should be configured in production
-      const compounderVault = '0x0000000000000000000000000000000000000000' as `0x${string}`;
+    // Determine factory address and ABI based on protocol
+    let factoryAddress: `0x${string}`;
+    let abi: any;
 
-      writeContract({
-        address: MORPHO_FACTORY_ADDRESS,
-        abi: MorphoFactoryABI,
-        functionName: 'createStrategy',
-        args: [
-          compounderVault,
-          name,
-          management,
-          keeper,
-          emergencyAdmin,
-          donationAddress,
-          enableBurning,
-          tokenizedStrategyAddress,
-        ],
-      });
-    } else if (protocol === ProtocolType.SKY) {
-      writeContract({
-        address: SKY_FACTORY_ADDRESS,
-        abi: SkyFactoryABI,
-        functionName: 'createStrategy',
-        args: [
-          name,
-          management,
-          keeper,
-          emergencyAdmin,
-          donationAddress,
-          enableBurning,
-          tokenizedStrategyAddress,
-        ],
-      });
+    switch (protocol) {
+      case ProtocolType.MORPHO:
+        factoryAddress = MORPHO_FACTORY_ADDRESS;
+        abi = MorphoFactoryABI;
+
+        // Morpho requires a compounder vault address
+        // For MVP, using zero address - should be configured in production
+        const compounderVault = '0x0000000000000000000000000000000000000000' as `0x${string}`;
+
+        writeContract({
+          address: factoryAddress,
+          abi: abi,
+          functionName: 'createStrategy',
+          args: [
+            compounderVault,
+            name,
+            management,
+            keeper,
+            emergencyAdmin,
+            donationAddress,
+            enableBurning,
+            tokenizedStrategyAddress,
+          ],
+        });
+        break;
+
+      case ProtocolType.SKY:
+        factoryAddress = SKY_FACTORY_ADDRESS;
+        abi = SkyFactoryABI;
+
+        writeContract({
+          address: factoryAddress,
+          abi: abi,
+          functionName: 'createStrategy',
+          args: [
+            name,
+            management,
+            keeper,
+            emergencyAdmin,
+            donationAddress,
+            enableBurning,
+            tokenizedStrategyAddress,
+          ],
+        });
+        break;
+
+      case ProtocolType.AAVE:
+        factoryAddress = AAVE_VAULT_ADDRESS;
+        abi = AaveABI;
+
+        // Aave uses ERC-4626 deposit interface
+        // For MVP, we'll use the simplified deposit function
+        // In production, this would integrate with the full Aave vault strategy
+        writeContract({
+          address: factoryAddress,
+          abi: abi,
+          functionName: 'deposit',
+          args: [
+            1000000, // amount (example: 1 USDC with 6 decimals)
+            donationAddress, // receiver of shares
+          ],
+        });
+        break;
+
+      default:
+        throw new Error(`Unsupported protocol: ${protocol}`);
     }
   };
 

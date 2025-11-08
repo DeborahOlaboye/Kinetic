@@ -45,14 +45,39 @@ Open [http://localhost:5173](http://localhost:5173) to see your app.
 Pre-configured ABIs for Octant v2 integration:
 - **MorphoCompounderStrategyFactory** - Factory for Morpho yield strategies
 - **SkyCompounderStrategyFactory** - Factory for Sky protocol strategies
+- **AaveATokenVault** - Aave v3 ERC-4626 vault for lending yields
 - **YieldDonatingTokenizedStrategy** - Automated yield donation contract
 
 All ABIs are located in `src/abis/` and ready to import:
 ```typescript
 import MorphoABI from '@/abis/MorphoCompounderStrategyFactory.json';
 import SkyABI from '@/abis/SkyCompounderStrategyFactory.json';
+import AaveABI from '@/abis/AaveATokenVault.json';
 import YieldABI from '@/abis/YieldDonatingTokenizedStrategy.json';
 ```
+
+## Aave v3 Integration
+
+Kinetic now supports **Aave v3** as a third protocol option for generating yield to fund public goods. This integration targets the **"Best Use of Aave v3"** hackathon track ($2,500 prize).
+
+### Features
+- **ERC-4626 Compliant**: Uses Aave's standardized ATokenVault interface
+- **Multi-Protocol Support**: Deploy strategies across Morpho, Sky, and Aave v3
+- **Battle-Tested Security**: Leverages Aave's $8B+ TVL and audited contracts
+- **Reliable Yields**: 4-6% APY on stablecoins (USDC, DAI, USDT)
+
+### How It Works
+1. Users select Aave as their yield source
+2. Vault deposits assets into Aave v3 lending pools
+3. Earns lending APY (4-6% on stablecoins)
+4. 100% of yield automatically routes to public goods recipients
+5. Principal remains in Aave, can be withdrawn anytime
+
+### Technical Details
+- **Aave v3 Pool Address**: `0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2` (Mainnet)
+- **Supported Assets**: USDC, DAI, USDT
+- **Interface**: ERC-4626 compliant for composability
+- **Gas Optimized**: Efficient recipient distribution
 
 ## Project Structure
 
