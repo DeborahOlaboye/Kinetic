@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { useDeployWithSplitter } from '@/hooks/useDeployWithSplitter';
 import { useDeployStrategyDirect } from '@/hooks/useDeployStrategyDirect';
-import { ProtocolType } from '@/utils/constants';
+import { ProtocolType, AAVE_POOL_ADDRESS, USDC_ADDRESS } from '@/utils/constants';
 import { Recipient } from '@/components/RecipientForm';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/store';
@@ -19,6 +19,23 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
   const navigate = useNavigate();
   const { address } = useAccount();
   const { addStrategy } = useAppStore();
+
+  // Local approval flow (for Aave)
+  const ERC20_ABI = [
+    {
+      type: 'function',
+      name: 'approve',
+      stateMutability: 'nonpayable',
+      inputs: [
+        { name: 'spender', type: 'address', internalType: 'address' },
+        { name: 'amount', type: 'uint256', internalType: 'uint256' },
+      ],
+      outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    },
+  ] as const;
+
+  const { writeContract: writeApprove, data: approveHash, isPending: isApprovePending } = useWriteContract();
+  const { isLoading: isApproveConfirming, isSuccess: isApproveSuccess } = useWaitForTransactionReceipt({ hash: approveHash });
 
   // Toggle: Use direct deployment (single recipient) or splitter (multi-recipient)
   const [useSplitter, setUseSplitter] = useState(true);
@@ -144,6 +161,7 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
   }, [error]);
 
   const isDisabled = disabled || !isValid || isPending || isConfirming;
+  const needsApprove = protocol === ProtocolType.AAVE && !isApproveSuccess;
 
   return (
     <div className="space-y-4">
@@ -178,9 +196,32 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
         </div>
       )}
 
+      {protocol === ProtocolType.AAVE && (
+        <Button
+          onClick={() => {
+            if (!address) return;
+            // Approve 1 USDC (1_000_000 with 6 decimals). Adjust as needed.
+            writeApprove({
+              address: USDC_ADDRESS,
+              abi: ERC20_ABI as any,
+              functionName: 'approve',
+              args: [AAVE_POOL_ADDRESS, 1_000_000n],
+            });
+          }}
+          disabled={isDisabled || isApprovePending || isApproveConfirming || isApproveSuccess}
+          className="w-full mb-2"
+          size="lg"
+        >
+          {isApprovePending && 'Approving USDC...'}
+          {isApproveConfirming && 'Confirming Approval...'}
+          {!isApprovePending && !isApproveConfirming && !isApproveSuccess && 'Approve USDC'}
+          {isApproveSuccess && 'USDC Approved'}
+        </Button>
+      )}
+
       <Button
         onClick={handleDeploy}
-        disabled={isDisabled}
+        disabled={isDisabled || (protocol === ProtocolType.AAVE && !isApproveSuccess)}
         className="w-full"
         size="lg"
       >
