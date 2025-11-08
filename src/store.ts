@@ -21,6 +21,10 @@ interface AppState {
   count: number;
   increment: () => void;
 
+  // Theme state
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+
   // New strategy state
   deployedStrategies: Strategy[];
   selectedStrategy: Strategy | null;
@@ -34,6 +38,12 @@ export const useAppStore = create<AppState>()(
       // Existing...
       count: 0,
       increment: () => set((state) => ({ count: state.count + 1 })),
+
+      // Theme...
+      theme: 'dark',
+      toggleTheme: () => set((state) => ({
+        theme: state.theme === 'light' ? 'dark' : 'light'
+      })),
 
       // New...
       deployedStrategies: [],
@@ -58,6 +68,7 @@ export const useAppStore = create<AppState>()(
       name: 'impactvault-storage', // localStorage key
       partialize: (state) => ({
         deployedStrategies: state.deployedStrategies,
+        theme: state.theme,
       }),
     }
   )

@@ -6,17 +6,21 @@ import { DeployButton } from '@/components/DeployButton';
 import { CheckContracts } from '@/components/CheckContracts';
 import { ProtocolType } from '@/utils/constants';
 import { Separator } from '@/components/ui/separator';
+import { useAppStore } from '@/store';
 
 export function Deploy() {
   const [selectedProtocol, setSelectedProtocol] = useState<ProtocolType | null>(null);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
+  const { theme } = useAppStore();
 
   return (
     <div className="container mx-auto px-6 py-12">
       <div className="max-w-4xl mx-auto space-y-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Deploy Strategy</h1>
-          <p className="text-gray-400">Create a new yield-generating vault that funds public goods</p>
+          <h1 className="text-4xl font-bold mb-2">Deploy Your Vault</h1>
+          <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-400'}>
+            Three steps to perpetual public goods funding. Deploy once, impact forever.
+          </p>
         </div>
 
         {/* Contract Checker */}

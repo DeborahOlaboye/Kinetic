@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 export function Dashboard() {
   const navigate = useNavigate();
   const { address } = useAccount();
-  const { deployedStrategies } = useAppStore();
+  const { deployedStrategies, theme } = useAppStore();
 
   // Debug logging
   console.log('Dashboard - Deployed Strategies:', deployedStrategies);
@@ -47,21 +47,21 @@ export function Dashboard() {
       <div className="max-w-6xl mx-auto space-y-8">
         <div>
           <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
-          <p className="text-gray-400">Track your impact and yield generation</p>
+          <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-400'}>Track your impact and yield generation</p>
         </div>
 
         {/* Debug component - remove in production */}
         <DebugStore />
 
         {!address && (
-          <Card className="p-8 text-center">
-            <p className="text-gray-400 mb-4">Connect your wallet to view your dashboard</p>
+          <Card className={`p-8 text-center ${theme === 'light' ? 'border-gray-200 bg-white' : 'border-gray-700 bg-gray-900/50'}`}>
+            <p className={`mb-4 ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>Connect your wallet to view your dashboard</p>
           </Card>
         )}
 
         {address && deployedStrategies.length === 0 && (
-          <Card className="p-8 text-center">
-            <p className="text-gray-400 mb-4">No strategies deployed yet</p>
+          <Card className={`p-8 text-center ${theme === 'light' ? 'border-gray-200 bg-white' : 'border-gray-700 bg-gray-900/50'}`}>
+            <p className={`mb-4 ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>No strategies deployed yet</p>
             <Button onClick={() => navigate('/deploy')}>
               Deploy Your First Strategy
             </Button>
@@ -86,15 +86,15 @@ export function Dashboard() {
             <Separator />
 
             <div className="grid md:grid-cols-2 gap-6">
-              <Card className="p-8">
+              <Card className={`p-8 ${theme === 'light' ? 'border-gray-200 bg-white' : 'border-gray-700 bg-gray-900/50'}`}>
                 <h2 className="text-2xl font-bold mb-4">Your Strategies</h2>
                 <div className="space-y-4">
                   {deployedStrategies.map((strategy, index) => (
-                    <Card key={index} className="p-6 border-gray-700">
+                    <Card key={index} className={`p-6 ${theme === 'light' ? 'border-gray-200 bg-gray-50' : 'border-gray-700'}`}>
                       <div className="flex justify-between items-center">
                         <div>
                           <h3 className="text-lg font-semibold">{strategy.name}</h3>
-                          <p className="text-sm text-gray-500">{strategy.protocol} Protocol</p>
+                          <p className={`text-sm ${theme === 'light' ? 'text-gray-600' : 'text-gray-500'}`}>{strategy.protocol} Protocol</p>
                         </div>
                         <Button variant="outline" size="sm">
                           View Details

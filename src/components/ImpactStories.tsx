@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useAppStore } from '@/store';
 
 interface ImpactStoriesProps {
   totalYield?: bigint;
@@ -7,6 +8,7 @@ interface ImpactStoriesProps {
 }
 
 export function ImpactStories({ totalYield, recipientCount = 0 }: ImpactStoriesProps) {
+  const { theme } = useAppStore();
   const yieldValue = totalYield ? Number(totalYield) / 1e18 : 0;
 
   const stories = [
@@ -34,21 +36,21 @@ export function ImpactStories({ totalYield, recipientCount = 0 }: ImpactStoriesP
   ];
 
   return (
-    <Card className="p-8">
+    <Card className={`p-8 ${theme === 'light' ? 'border-gray-200 bg-white' : 'border-gray-700 bg-gray-900/50'}`}>
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">Your Impact Story</h2>
-        <p className="text-gray-400">See the real-world impact of your yield donations</p>
+        <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-400'}>See the real-world impact of your yield donations</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
         {stories.map((story, index) => (
           <Card
             key={index}
-            className={`p-6 border-${story.color}-500/30 hover:border-${story.color}-500/50 transition-colors`}
+            className={`p-6 border-${story.color}-500/30 hover:border-${story.color}-500/50 transition-colors ${theme === 'light' ? 'bg-gray-50' : ''}`}
           >
             <div className="text-4xl mb-4">{story.icon}</div>
             <h3 className="text-lg font-semibold mb-2">{story.title}</h3>
-            <p className="text-sm text-gray-400 mb-4">{story.description}</p>
+            <p className={`text-sm mb-4 ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>{story.description}</p>
             <Badge variant="outline" className={`text-${story.color}-400`}>
               {story.impact}
             </Badge>
@@ -56,9 +58,13 @@ export function ImpactStories({ totalYield, recipientCount = 0 }: ImpactStoriesP
         ))}
       </div>
 
-      <div className="mt-8 p-6 bg-gradient-to-r from-blue-900/20 to-green-900/20 rounded-lg border border-blue-500/20">
+      <div className={`mt-8 p-6 rounded-lg border ${
+        theme === 'light'
+          ? 'bg-gradient-to-r from-blue-100 to-green-100 border-blue-300'
+          : 'bg-gradient-to-r from-blue-900/20 to-green-900/20 border-blue-500/20'
+      }`}>
         <h3 className="text-lg font-semibold mb-2">Passive Impact Making</h3>
-        <p className="text-gray-400">
+        <p className={theme === 'light' ? 'text-gray-700' : 'text-gray-400'}>
           Your funds continue generating returns while automatically funding public goods.
           No additional effort required - your capital works for the greater good 24/7.
         </p>

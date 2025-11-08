@@ -1,6 +1,23 @@
-# Octant v2 Hackathon dApp Boilerplate
+# ⚡ Kinetic
 
-A production-ready React boilerplate optimized for hackathon development. Get started building your dApp in minutes with modern tooling and essential libraries pre-configured.
+**Capital in motion for public goods**
+
+Deploy yield-generating DeFi strategies that fund Ethereum's most impactful projects perpetually. Set it once, impact forever.
+
+Built for **Octant DeFi Hackathon 2025** | Powered by **Morpho • Sky • Aave v3**
+
+---
+
+## What is Kinetic?
+
+Kinetic transforms idle treasury assets into perpetual funding engines for public goods. Deploy yield strategies in 3 clicks, never touch them again, and fund Ethereum builders forever.
+
+**Key Features:**
+- 🎯 **3-Click Deployment** - Select protocol → Add recipients → Deploy
+- 💰 **Multi-Protocol Support** - Choose from Morpho (~5-8% APY), Sky (~4-6% APY), or Aave v3 (~4-6% APY)
+- 📊 **Real-Time Tracking** - Watch yield accumulate and see exactly how much you're funding
+- 🔒 **Zero Principal Loss** - Only yields are donated, your capital stays safe
+- ⚡ **Perpetual Impact** - Set once, fund public goods forever
 
 ## Quick Start
 

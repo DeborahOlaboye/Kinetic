@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatAddress } from '@/utils/formatters';
+import { useAppStore } from '@/store';
 
 interface Recipient {
   address: string;
@@ -14,16 +15,18 @@ interface RecipientListProps {
 }
 
 export function RecipientList({ recipients, totalYield }: RecipientListProps) {
+  const { theme } = useAppStore();
+
   if (recipients.length === 0) {
     return (
-      <Card className="p-8 text-center">
-        <p className="text-gray-400">No recipients configured</p>
+      <Card className={`p-8 text-center ${theme === 'light' ? 'border-gray-200 bg-white' : 'border-gray-700 bg-gray-900/50'}`}>
+        <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-400'}>No recipients configured</p>
       </Card>
     );
   }
 
   return (
-    <Card className="p-8">
+    <Card className={`p-8 ${theme === 'light' ? 'border-gray-200 bg-white' : 'border-gray-700 bg-gray-900/50'}`}>
       <h2 className="text-2xl font-bold mb-6">Yield Distribution</h2>
       <div className="space-y-4">
         {recipients.map((recipient, index) => (
@@ -34,14 +37,14 @@ export function RecipientList({ recipients, totalYield }: RecipientListProps) {
                   <h3 className="text-lg font-semibold">{recipient.name}</h3>
                   <Badge variant="outline">{recipient.percentage}%</Badge>
                 </div>
-                <p className="text-sm text-gray-500 font-mono mt-1">
+                <p className={`text-sm font-mono mt-1 ${theme === 'light' ? 'text-gray-600' : 'text-gray-500'}`}>
                   {formatAddress(recipient.address)}
                 </p>
               </div>
             </div>
 
             {/* Visual percentage bar */}
-            <div className="relative h-2 bg-gray-800 rounded-full overflow-hidden">
+            <div className={`relative h-2 rounded-full overflow-hidden ${theme === 'light' ? 'bg-gray-200' : 'bg-gray-800'}`}>
               <div
                 className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-green-500 rounded-full transition-all duration-500"
                 style={{ width: `${recipient.percentage}%` }}
@@ -49,7 +52,7 @@ export function RecipientList({ recipients, totalYield }: RecipientListProps) {
             </div>
 
             {totalYield && (
-              <div className="text-right text-sm text-gray-400">
+              <div className={`text-right text-sm ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
                 Est. received: $
                 {((Number(totalYield) / 1e18) * (recipient.percentage / 100)).toFixed(4)}
               </div>
@@ -58,13 +61,13 @@ export function RecipientList({ recipients, totalYield }: RecipientListProps) {
         ))}
       </div>
 
-      <div className="mt-6 pt-6 border-t border-gray-800">
+      <div className={`mt-6 pt-6 border-t ${theme === 'light' ? 'border-gray-200' : 'border-gray-800'}`}>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-400">Total Recipients</span>
+          <span className={theme === 'light' ? 'text-gray-600' : 'text-gray-400'}>Total Recipients</span>
           <span className="font-semibold">{recipients.length}</span>
         </div>
         <div className="flex justify-between text-sm mt-2">
-          <span className="text-gray-400">Total Allocation</span>
+          <span className={theme === 'light' ? 'text-gray-600' : 'text-gray-400'}>Total Allocation</span>
           <span className="font-semibold text-green-400">
             {recipients.reduce((sum, r) => sum + r.percentage, 0)}%
           </span>
