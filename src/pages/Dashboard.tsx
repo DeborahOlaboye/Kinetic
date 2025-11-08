@@ -3,7 +3,6 @@ import { YieldCounter } from '@/components/YieldCounter';
 import { RecipientList } from '@/components/RecipientList';
 import { ImpactStories } from '@/components/ImpactStories';
 import { ShareButton } from '@/components/ShareButton';
-import { DebugStore } from '@/components/DebugStore';
 import { Card } from '@/components/ui/card';
 import { useAppStore } from '@/store';
 import { useAccount } from 'wagmi';
@@ -16,10 +15,6 @@ export function Dashboard() {
   const { address } = useAccount();
   const { deployedStrategies } = useAppStore();
 
-  // Debug logging
-  console.log('Dashboard - Deployed Strategies:', deployedStrategies);
-  console.log('Dashboard - Strategy Count:', deployedStrategies.length);
-  console.log('Dashboard - Wallet Address:', address);
 
   // Calculate total assets and yield from deployed strategies
   // In production, this would fetch real values from contracts
@@ -50,8 +45,6 @@ export function Dashboard() {
           <p className="text-gray-400">Track your impact and yield generation</p>
         </div>
 
-        {/* Debug component - remove in production */}
-        <DebugStore />
 
         {!address && (
           <Card className="p-8 text-center">

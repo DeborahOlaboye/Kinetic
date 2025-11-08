@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { ProtocolSelector } from '@/components/ProtocolSelector';
 import { RecipientForm, Recipient } from '@/components/RecipientForm';
 import { DeployButton } from '@/components/DeployButton';
-import { CheckContracts } from '@/components/CheckContracts';
 import { ProtocolType } from '@/utils/constants';
 import { Separator } from '@/components/ui/separator';
 
@@ -19,8 +18,6 @@ export function Deploy() {
           <p className="text-gray-400">Create a new yield-generating vault that funds public goods</p>
         </div>
 
-        {/* Contract Checker */}
-        <CheckContracts />
 
         <ProtocolSelector
           selected={selectedProtocol}
