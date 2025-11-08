@@ -16,10 +16,11 @@ export const SKY_FACTORY_ADDRESS = (
   "0x0000000000000000000000000000000000000000"
 ) as `0x${string}`;
 
-// Recipient Splitter Factory (for multi-recipient distribution)
-export const SPLITTER_FACTORY_ADDRESS = (
-  import.meta.env.VITE_SPLITTER_FACTORY_ADDRESS ||
-  "0x0000000000000000000000000000000000000000"
+// Deployed PaymentSplitter instance (Chain 8)
+// Deploy using: forge script script/DeployPaymentSplitterWithProxy.s.sol
+export const PAYMENT_SPLITTER_ADDRESS = (
+  import.meta.env.VITE_PAYMENT_SPLITTER_ADDRESS ||
+  "0xc4AE01295cfAE3DA96b044F1a4284A93837a644C"
 ) as `0x${string}`;
 
 // Protocol types

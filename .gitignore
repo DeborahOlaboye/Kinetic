@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 *.yarn
 .env
+.env.local
+.env.*
+
+out/
+broadcast/
+cache/

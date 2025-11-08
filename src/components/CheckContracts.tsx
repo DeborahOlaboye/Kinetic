@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { usePublicClient } from 'wagmi';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
-import { MORPHO_FACTORY_ADDRESS, SKY_FACTORY_ADDRESS, SPLITTER_FACTORY_ADDRESS } from '@/utils/constants';
+import { MORPHO_FACTORY_ADDRESS, SKY_FACTORY_ADDRESS, PAYMENT_SPLITTER_ADDRESS } from '@/utils/constants';
 
 export function CheckContracts() {
   const [results, setResults] = useState<Record<string, string>>({});
@@ -26,9 +26,9 @@ export function CheckContracts() {
         ? `✅ EXISTS (${skyCode.length} bytes)`
         : '❌ NOT DEPLOYED';
 
-      // Check Splitter Factory
-      const splitterCode = await publicClient?.getBytecode({ address: SPLITTER_FACTORY_ADDRESS });
-      newResults['Splitter Factory'] = splitterCode && splitterCode !== '0x'
+      // Check PaymentSplitter
+      const splitterCode = await publicClient?.getBytecode({ address: PAYMENT_SPLITTER_ADDRESS });
+      newResults['Payment Splitter'] = splitterCode && splitterCode !== '0x'
         ? `✅ EXISTS (${splitterCode.length} bytes)`
         : '❌ NOT DEPLOYED';
 
@@ -55,8 +55,8 @@ export function CheckContracts() {
           <div className="font-mono text-gray-400">{SKY_FACTORY_ADDRESS}</div>
         </div>
         <div className="text-xs">
-          <div className="font-bold">Splitter Factory:</div>
-          <div className="font-mono text-gray-400">{SPLITTER_FACTORY_ADDRESS}</div>
+          <div className="font-bold">Payment Splitter:</div>
+          <div className="font-mono text-gray-400">{PAYMENT_SPLITTER_ADDRESS}</div>
         </div>
       </div>
 
