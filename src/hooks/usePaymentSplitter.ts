@@ -1,25 +1,29 @@
 import { useReadContract, useReadContracts } from 'wagmi';
-import { PAYMENT_SPLITTER_ADDRESS } from '@/utils/constants';
+import { PAYMENT_SPLITTER_ADDRESS, SPLITTER_CHAIN_ID } from '@/utils/constants';
 import PaymentSplitterABI from '@/abis/PaymentSplitter.json';
 import { Address } from 'viem';
 
 /**
  * Hook to read PaymentSplitter contract data
  */
-export function usePaymentSplitter(payeeAddress?: Address) {
+export function usePaymentSplitter(payeeAddress?: Address, splitterOverride?: Address) {
+  const splitter = (splitterOverride || PAYMENT_SPLITTER_ADDRESS) as Address;
+
   // Get total shares
   const { data: totalShares } = useReadContract({
-    address: PAYMENT_SPLITTER_ADDRESS,
+    address: splitter,
     abi: PaymentSplitterABI,
     functionName: 'totalShares',
+    chainId: SPLITTER_CHAIN_ID,
   });
 
   // Get payee shares
   const { data: shares } = useReadContract({
-    address: PAYMENT_SPLITTER_ADDRESS,
+    address: splitter,
     abi: PaymentSplitterABI,
     functionName: 'shares',
     args: payeeAddress ? [payeeAddress] : undefined,
+    chainId: SPLITTER_CHAIN_ID,
     query: {
       enabled: !!payeeAddress,
     },
@@ -27,10 +31,11 @@ export function usePaymentSplitter(payeeAddress?: Address) {
 
   // Get releasable ETH amount
   const { data: releasableETH, refetch: refetchReleasableETH } = useReadContract({
-    address: PAYMENT_SPLITTER_ADDRESS,
+    address: splitter,
     abi: PaymentSplitterABI,
     functionName: 'releasable',
     args: payeeAddress ? [payeeAddress] : undefined,
+    chainId: SPLITTER_CHAIN_ID,
     query: {
       enabled: !!payeeAddress,
     },
@@ -38,10 +43,11 @@ export function usePaymentSplitter(payeeAddress?: Address) {
 
   // Get released ETH amount
   const { data: releasedETH } = useReadContract({
-    address: PAYMENT_SPLITTER_ADDRESS,
+    address: splitter,
     abi: PaymentSplitterABI,
     functionName: 'released',
     args: payeeAddress ? [payeeAddress] : undefined,
+    chainId: SPLITTER_CHAIN_ID,
     query: {
       enabled: !!payeeAddress,
     },
@@ -49,9 +55,10 @@ export function usePaymentSplitter(payeeAddress?: Address) {
 
   // Get total released ETH
   const { data: totalReleased } = useReadContract({
-    address: PAYMENT_SPLITTER_ADDRESS,
+    address: splitter,
     abi: PaymentSplitterABI,
     functionName: 'totalReleased',
+    chainId: SPLITTER_CHAIN_ID,
   });
 
   // Calculate percentage if we have both shares and totalShares
@@ -78,22 +85,26 @@ export function usePaymentSplitter(payeeAddress?: Address) {
 /**
  * Hook to get releasable ERC20 token amount
  */
-export function useReleasableToken(tokenAddress?: Address, payeeAddress?: Address) {
+export function useReleasableToken(tokenAddress?: Address, payeeAddress?: Address, splitterOverride?: Address) {
+  const splitter = (splitterOverride || PAYMENT_SPLITTER_ADDRESS) as Address;
+
   const { data: releasableToken, refetch } = useReadContract({
-    address: PAYMENT_SPLITTER_ADDRESS,
+    address: splitter,
     abi: PaymentSplitterABI,
     functionName: 'releasable',
     args: tokenAddress && payeeAddress ? [tokenAddress, payeeAddress] : undefined,
+    chainId: SPLITTER_CHAIN_ID,
     query: {
       enabled: !!(tokenAddress && payeeAddress),
     },
   });
 
   const { data: releasedToken } = useReadContract({
-    address: PAYMENT_SPLITTER_ADDRESS,
+    address: splitter,
     abi: PaymentSplitterABI,
     functionName: 'released',
     args: tokenAddress && payeeAddress ? [tokenAddress, payeeAddress] : undefined,
+    chainId: SPLITTER_CHAIN_ID,
     query: {
       enabled: !!(tokenAddress && payeeAddress),
     },
@@ -109,13 +120,16 @@ export function useReleasableToken(tokenAddress?: Address, payeeAddress?: Addres
 /**
  * Hook to get all payees
  */
-export function usePaymentSplitterPayees() {
+export function usePaymentSplitterPayees(splitterOverride?: Address) {
+  const splitter = (splitterOverride || PAYMENT_SPLITTER_ADDRESS) as Address;
+
   // We'll try to get up to 10 payees (adjust as needed)
   const payeeQueries = Array.from({ length: 10 }, (_, index) => ({
-    address: PAYMENT_SPLITTER_ADDRESS,
+    address: splitter,
     abi: PaymentSplitterABI,
     functionName: 'payee',
     args: [BigInt(index)],
+    chainId: SPLITTER_CHAIN_ID,
   }));
 
   const { data: payeesData } = useReadContracts({
