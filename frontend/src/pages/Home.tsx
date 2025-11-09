@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router';
 import { KineticParticles } from '@/components/KineticParticles';
 import { ShootingStars } from '@/components/ShootingStars';
@@ -16,12 +17,17 @@ export function Home() {
 
       <div className="container mx-auto px-6 py-12 relative z-10">
         <div className="text-center mb-12">
-          <h1 className="text-6xl font-bold mb-4">Kinetic</h1>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <h1 className="text-6xl font-bold">Kinetic</h1>
+            <Badge variant="outline" className="border-[#78B288] text-[#78B288] text-xs px-3 py-1">
+              Powered by Octant V2
+            </Badge>
+          </div>
           <p className="text-xl text-secondary-foreground mb-2">
             Capital in motion for public goods
           </p>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-            Deploy yield strategies across Morpho, Sky & Aave. Fund Ethereum's builders perpetually.
+            Deploy yield strategies across Morpho & Aave via Octant V2. Fund Ethereum's builders perpetually.
           </p>
         </div>
 
