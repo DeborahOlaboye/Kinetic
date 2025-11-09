@@ -67,11 +67,11 @@ export function YieldCounter({
   if (isLoading) {
     return (
       <div className="grid md:grid-cols-2 gap-6">
-        <Card className="p-8">
-          <div className="h-32 animate-pulse bg-muted rounded" />
+        <Card className="p-8 glass-card">
+          <div className="h-32 animate-pulse bg-muted rounded shimmer" />
         </Card>
-        <Card className="p-8">
-          <div className="h-32 animate-pulse bg-muted rounded" />
+        <Card className="p-8 glass-card">
+          <div className="h-32 animate-pulse bg-muted rounded shimmer" />
         </Card>
       </div>
     );
@@ -79,12 +79,12 @@ export function YieldCounter({
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
-      <Card className="p-8 border-[#B9AEA5]/50">
+      <Card className="p-8 glass-card card-elevated border-[#B9AEA5]/50 glow-on-hover">
         <div className="space-y-2">
           <div className="text-sm text-muted-foreground uppercase tracking-wide">
             Capital Deployed
           </div>
-          <div className="text-4xl font-bold text-foreground">
+          <div className="text-4xl font-bold text-foreground shimmer">
             ${formatNumber(animatedTotal)}
           </div>
           <div className="text-xs text-muted-foreground">
@@ -93,12 +93,12 @@ export function YieldCounter({
         </div>
       </Card>
 
-      <Card className="p-8 border-[#78B288]/50">
+      <Card className="p-8 glass-card card-elevated border-[#78B288]/50 glow-on-hover">
         <div className="space-y-2">
           <div className="text-sm text-muted-foreground uppercase tracking-wide">
             Public Goods Funded
           </div>
-          <div className="text-4xl font-bold text-[#78B288]">
+          <div className="text-4xl font-bold text-[#78B288] shimmer">
             ${formatNumber(animatedYield)}
           </div>
           <div className="text-xs text-muted-foreground">

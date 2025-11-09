@@ -79,7 +79,7 @@ export function PaymentSplitterDashboard() {
 
   if (!address) {
     return (
-      <Card className="p-8 text-center">
+      <Card className="p-8 text-center glass-card card-elevated">
         <p className="text-muted-foreground">Connect your wallet to view your share</p>
       </Card>
     );
@@ -89,7 +89,7 @@ export function PaymentSplitterDashboard() {
 
   if (!isPayee) {
     return (
-      <Card className="p-8 text-center">
+      <Card className="p-8 text-center glass-card card-elevated">
         <p className="text-muted-foreground">Your address is not a payee in this PaymentSplitter</p>
         <p className="text-sm text-muted-foreground mt-2">
           Payees: {payees.length} configured
@@ -103,25 +103,25 @@ export function PaymentSplitterDashboard() {
   return (
     <div className="space-y-6">
       {/* Your Share Info */}
-      <Card className="p-8">
+      <Card className="p-8 glass-card card-elevated">
         <h2 className="text-2xl font-bold mb-6">Your Share in PaymentSplitter</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div>
+          <div className="shimmer p-4 rounded-lg">
             <p className="text-sm text-muted-foreground mb-1">Your Shares</p>
             <p className="text-2xl font-bold">
               {shares?.toString() || '0'}
             </p>
           </div>
 
-          <div>
+          <div className="shimmer p-4 rounded-lg">
             <p className="text-sm text-muted-foreground mb-1">Total Shares</p>
             <p className="text-2xl font-bold">
               {totalShares?.toString() || '0'}
             </p>
           </div>
 
-          <div>
+          <div className="shimmer p-4 rounded-lg">
             <p className="text-sm text-muted-foreground mb-1">Your Percentage</p>
             <div className="flex items-center gap-2">
               <p className="text-2xl font-bold">{percentage.toFixed(2)}%</p>
@@ -133,19 +133,19 @@ export function PaymentSplitterDashboard() {
         {/* Visual percentage bar */}
         <div className="relative h-2 bg-muted rounded-full overflow-hidden">
           <div
-            className="absolute top-0 left-0 h-full bg-[#78B288] rounded-full transition-all duration-500"
+            className="absolute top-0 left-0 h-full bg-[#78B288] rounded-full transition-all duration-500 shimmer"
             style={{ width: `${percentage}%` }}
           />
         </div>
       </Card>
 
       {/* ETH Claimable */}
-      <Card className="p-8">
+      <Card className="p-8 glass-card card-elevated">
         <h3 className="text-xl font-bold mb-4">ETH Balance</h3>
 
         <div className="space-y-4">
           <div className="flex justify-between items-start">
-            <div>
+            <div className="shimmer p-4 rounded-lg">
               <p className="text-sm text-muted-foreground">Claimable ETH</p>
               <p className="text-3xl font-bold text-[#78B288]">
                 {releasableETH ? formatEther(releasableETH) : '0'} ETH
@@ -155,7 +155,7 @@ export function PaymentSplitterDashboard() {
             <Button
               onClick={() => address && claimETH(address, activeSplitter || undefined)}
               disabled={!hasClaimableETH || isClaimingETH || isConfirmingETH}
-              className="bg-[#78B288] hover:bg-[#5A8F69]"
+              className="bg-[#78B288] hover:bg-[#5A8F69] shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
             >
               {isClaimingETH || isConfirmingETH ? (
                 <>
@@ -189,7 +189,7 @@ export function PaymentSplitterDashboard() {
       </Card>
 
       {/* ERC20 Tokens */}
-      <Card className="p-8">
+      <Card className="p-8 glass-card card-elevated">
         <h3 className="text-xl font-bold mb-4">ERC20 Tokens</h3>
 
         <div className="space-y-4">
@@ -209,7 +209,7 @@ export function PaymentSplitterDashboard() {
       </Card>
 
       {/* All Payees List */}
-      <Card className="p-8">
+      <Card className="p-8 glass-card card-elevated">
         <h3 className="text-xl font-bold mb-4">All Payees ({payees.length})</h3>
 
         <div className="space-y-2">
@@ -250,7 +250,7 @@ function TokenClaimRow({
   const hasClaimable = releasableToken && releasableToken > 0n;
 
   return (
-    <div className="flex justify-between items-center p-4 bg-secondary/50 rounded-lg">
+    <div className="flex justify-between items-center p-4 bg-secondary/50 rounded-lg glass-effect hover:bg-secondary/70 transition-all duration-300">
       <div className="flex-1">
         <p className="font-semibold">{tokenSymbol}</p>
         <div className="flex gap-4 text-sm text-muted-foreground mt-1">
@@ -267,7 +267,7 @@ function TokenClaimRow({
         onClick={() => onClaim(tokenAddress, payeeAddress, splitterAddress)}
         disabled={!hasClaimable || isPending}
         variant={hasClaimable ? 'default' : 'outline'}
-        className={hasClaimable ? 'bg-[#78B288] hover:bg-[#5A8F69]' : ''}
+        className={hasClaimable ? 'bg-[#78B288] hover:bg-[#5A8F69] shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300' : 'hover:scale-105 transition-all duration-300'}
         size="sm"
       >
         {isPending ? (

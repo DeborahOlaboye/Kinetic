@@ -6,6 +6,7 @@ import { DeployButton } from '@/components/DeployButton';
 import { ProtocolType } from '@/utils/constants';
 import { Separator } from '@/components/ui/separator';
 import { KineticParticles } from '@/components/KineticParticles';
+import { ShootingStars } from '@/components/ShootingStars';
 
 export function Deploy() {
   const [selectedProtocol, setSelectedProtocol] = useState<ProtocolType | null>(null);
@@ -15,6 +16,8 @@ export function Deploy() {
     <div className="relative">
       {/* Kinetic Energy Particles Background */}
       <KineticParticles />
+      {/* Shooting Stars */}
+      <ShootingStars />
 
       <div className="container mx-auto px-6 py-12 relative z-10">
         <div className="max-w-4xl mx-auto space-y-8">

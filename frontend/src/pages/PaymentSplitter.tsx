@@ -3,12 +3,15 @@ import { PAYMENT_SPLITTER_ADDRESS } from '@/utils/constants';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { KineticParticles } from '@/components/KineticParticles';
+import { ShootingStars } from '@/components/ShootingStars';
 
 export function PaymentSplitterPage() {
   return (
     <div className="relative min-h-screen bg-background py-12 px-4">
       {/* Kinetic Energy Particles Background */}
       <KineticParticles />
+      {/* Shooting Stars */}
+      <ShootingStars />
 
       <div className="max-w-6xl mx-auto space-y-8 relative z-10">
         {/* Header */}
