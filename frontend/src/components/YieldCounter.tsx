@@ -68,10 +68,10 @@ export function YieldCounter({
     return (
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-8">
-          <div className="h-32 animate-pulse bg-gray-800 rounded" />
+          <div className="h-32 animate-pulse bg-muted rounded" />
         </Card>
         <Card className="p-8">
-          <div className="h-32 animate-pulse bg-gray-800 rounded" />
+          <div className="h-32 animate-pulse bg-muted rounded" />
         </Card>
       </div>
     );
@@ -79,30 +79,30 @@ export function YieldCounter({
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
-      <Card className="p-8 border-blue-500/50">
+      <Card className="p-8 border-[#B9AEA5]/50">
         <div className="space-y-2">
-          <div className="text-sm text-gray-400 uppercase tracking-wide">
-            Total Value Locked
+          <div className="text-sm text-muted-foreground uppercase tracking-wide">
+            Capital Deployed
           </div>
-          <div className="text-4xl font-bold text-blue-400">
+          <div className="text-4xl font-bold text-foreground">
             ${formatNumber(animatedTotal)}
           </div>
-          <div className="text-xs text-gray-500">
-            Generating yield for public goods
+          <div className="text-xs text-muted-foreground">
+            Generating perpetual funding
           </div>
         </div>
       </Card>
 
-      <Card className="p-8 border-green-500/50">
+      <Card className="p-8 border-[#78B288]/50">
         <div className="space-y-2">
-          <div className="text-sm text-gray-400 uppercase tracking-wide">
-            Yield Generated
+          <div className="text-sm text-muted-foreground uppercase tracking-wide">
+            Public Goods Funded
           </div>
-          <div className="text-4xl font-bold text-green-400">
+          <div className="text-4xl font-bold text-[#78B288]">
             ${formatNumber(animatedYield)}
           </div>
-          <div className="text-xs text-gray-500">
-            Donated to selected projects
+          <div className="text-xs text-muted-foreground">
+            Funding active, impact perpetual
           </div>
         </div>
       </Card>

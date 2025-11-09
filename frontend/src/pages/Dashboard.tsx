@@ -9,6 +9,7 @@ import { useAccount } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router';
 import { Separator } from '@/components/ui/separator';
+import { KineticParticles } from '@/components/KineticParticles';
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -38,24 +39,28 @@ export function Dashboard() {
   );
 
   return (
-    <div className="container mx-auto px-6 py-12">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="relative">
+      {/* Kinetic Energy Particles Background */}
+      <KineticParticles />
+
+      <div className="container mx-auto px-6 py-12 relative z-10">
+        <div className="max-w-6xl mx-auto space-y-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
-          <p className="text-gray-400">Track your impact and yield generation</p>
+          <h1 className="text-4xl font-bold mb-2">Your Impact</h1>
+          <p className="text-muted-foreground">Track your perpetual funding and impact metrics</p>
         </div>
 
 
         {!address && (
           <Card className="p-8 text-center">
-            <p className="text-gray-400 mb-4">Connect your wallet to view your dashboard</p>
+            <p className="text-muted-foreground mb-4">Connect your wallet to view your dashboard</p>
           </Card>
         )}
 
         {address && deployedStrategies.length === 0 && (
           <Card className="p-8 text-center">
-            <p className="text-gray-400 mb-4">No strategies deployed yet</p>
-            <Button onClick={() => navigate('/deploy')}>
+            <p className="text-muted-foreground mb-4">No strategies deployed yet</p>
+            <Button onClick={() => navigate('/deploy')} className="bg-[#78B288] hover:bg-[#5A8F69]">
               Deploy Your First Strategy
             </Button>
           </Card>
@@ -80,16 +85,16 @@ export function Dashboard() {
 
             <div className="grid md:grid-cols-2 gap-6">
               <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-4">Your Strategies</h2>
+                <h2 className="text-2xl font-bold mb-4">Your Active Strategies</h2>
                 <div className="space-y-4">
                   {deployedStrategies.map((strategy, index) => (
-                    <Card key={index} className="p-6 border-gray-700">
+                    <Card key={index} className="p-6 border-border hover:border-[#78B288] transition-all duration-300">
                       <div className="flex justify-between items-center">
                         <div>
                           <h3 className="text-lg font-semibold">{strategy.name}</h3>
-                          <p className="text-sm text-gray-500">{strategy.protocol} Protocol</p>
+                          <p className="text-sm text-muted-foreground">{strategy.protocol} Protocol</p>
                         </div>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="border-[#78B288] text-[#78B288] hover:bg-[#78B288] hover:text-white">
                           View Details
                         </Button>
                       </div>
@@ -114,6 +119,7 @@ export function Dashboard() {
             />
           </>
         )}
+        </div>
       </div>
     </div>
   );

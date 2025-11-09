@@ -11,56 +11,52 @@ export function ImpactStories({ totalYield, recipientCount = 0 }: ImpactStoriesP
 
   const stories = [
     {
-      title: 'Funding Open Source Development',
-      description: 'Your yield is supporting critical infrastructure projects that power the decentralized web.',
-      impact: `$${(yieldValue * 0.4).toFixed(2)} contributed`,
+      title: 'Ethereum Infrastructure',
+      description: 'Perpetual funding for critical infrastructure that powers the Ethereum ecosystem.',
+      impact: `$${(yieldValue * 0.4).toFixed(2)} perpetual funding`,
       icon: '💻',
-      color: 'blue',
     },
     {
-      title: 'Environmental Impact',
-      description: 'Supporting carbon-negative blockchain initiatives and green public goods.',
-      impact: `${((yieldValue * 0.3) / 50).toFixed(1)} tons CO₂ offset`,
+      title: 'Public Goods Builders',
+      description: 'Supporting developers building essential tools and protocols for the community.',
+      impact: `${recipientCount} projects funded`,
       icon: '🌱',
-      color: 'green',
     },
     {
-      title: 'Community Building',
-      description: 'Empowering community-led projects and local public goods initiatives.',
-      impact: `${recipientCount} projects supported`,
+      title: 'Sustainable Impact',
+      description: 'Capital in motion generating lasting value for Ethereum public goods.',
+      impact: `${((yieldValue * 0.3) / 50).toFixed(1)}x multiplier effect`,
       icon: '🤝',
-      color: 'purple',
     },
   ];
 
   return (
     <Card className="p-8">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Your Impact Story</h2>
-        <p className="text-gray-400">See the real-world impact of your yield donations</p>
+        <h2 className="text-2xl font-bold mb-2">Your Perpetual Impact</h2>
+        <p className="text-muted-foreground">Capital in motion funding public goods, forever</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
         {stories.map((story, index) => (
           <Card
             key={index}
-            className={`p-6 border-${story.color}-500/30 hover:border-${story.color}-500/50 transition-colors`}
+            className="p-6 border-[#78B288]/30 hover:border-[#78B288]/50 transition-all duration-300"
           >
             <div className="text-4xl mb-4">{story.icon}</div>
             <h3 className="text-lg font-semibold mb-2">{story.title}</h3>
-            <p className="text-sm text-gray-400 mb-4">{story.description}</p>
-            <Badge variant="outline" className={`text-${story.color}-400`}>
+            <p className="text-sm text-muted-foreground mb-4">{story.description}</p>
+            <Badge variant="outline" className="text-[#78B288] border-[#78B288]">
               {story.impact}
             </Badge>
           </Card>
         ))}
       </div>
 
-      <div className="mt-8 p-6 bg-gradient-to-r from-blue-900/20 to-green-900/20 rounded-lg border border-blue-500/20">
-        <h3 className="text-lg font-semibold mb-2">Passive Impact Making</h3>
-        <p className="text-gray-400">
-          Your funds continue generating returns while automatically funding public goods.
-          No additional effort required - your capital works for the greater good 24/7.
+      <div className="mt-8 p-6 bg-[#78B288]/10 rounded-lg border border-[#78B288]/20">
+        <h3 className="text-lg font-semibold mb-2">Set and Forget. Fund Forever.</h3>
+        <p className="text-muted-foreground">
+          Deploy once, impact perpetually. Your capital generates sustainable yield while your principal stays safe and withdrawable. No grants cycles. No renewals. Just perpetual funding for Ethereum's builders.
         </p>
       </div>
     </Card>

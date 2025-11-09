@@ -11,14 +11,16 @@ import './App.css';
 function App() {
 	return (
 		<BrowserRouter>
-			<div className="min-h-screen bg-[#0d0d0d] text-white">
-				<nav className="border-b border-gray-800 p-4">
+			<div className="min-h-screen bg-background text-foreground">
+				<nav className="border-b border-border p-4 bg-secondary/50">
 					<div className="container mx-auto flex justify-between items-center">
-						<a href="/" className="text-2xl font-bold">ImpactVault</a>
+						<a href="/" className="text-2xl font-bold hover:text-secondary-foreground transition-colors">
+							Kinetic
+						</a>
 						<div className="flex gap-6 items-center">
-							<a href="/deploy" className="hover:text-blue-400">Deploy</a>
-							<a href="/dashboard" className="hover:text-green-400">Dashboard</a>
-							<a href="/splitter" className="hover:text-purple-400">Splitter</a>
+							<a href="/deploy" className="hover:text-[#78B288] transition-colors">Deploy Strategy</a>
+							<a href="/dashboard" className="hover:text-[#78B288] transition-colors">Your Impact</a>
+							<a href="/splitter" className="hover:text-[#B0B0DD] transition-colors">Payment Splitter</a>
 							<ConnectWallet />
 						</div>
 					</div>
