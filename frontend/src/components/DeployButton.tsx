@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useDeployWithSplitter } from '@/hooks/useDeployWithSplitter';
 import { useDeployStrategyDirect } from '@/hooks/useDeployStrategyDirect';
-import { ProtocolType, AAVE_POOL_ADDRESS, USDC_ADDRESS, SUPPORTED_ASSETS } from '@/utils/constants';
+import { ProtocolType, AAVE_VAULT_ADDRESS, USDC_ADDRESS, SUPPORTED_ASSETS } from '@/utils/constants';
 import { Recipient } from '@/components/RecipientForm';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, usePublicClient } from 'wagmi';
 import { toast } from 'sonner';
@@ -212,7 +212,7 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
             },
           ] as const,
           functionName: 'allowance',
-          args: [address, AAVE_POOL_ADDRESS],
+          args: [address, AAVE_VAULT_ADDRESS],
         });
         setAllowance(result as unknown as bigint);
       } catch (e) {
@@ -299,7 +299,7 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
                 address: selectedAsset.address as `0x${string}`,
                 abi: ERC20_ABI as any,
                 functionName: 'approve',
-                args: [AAVE_POOL_ADDRESS, amountBN],
+                args: [AAVE_VAULT_ADDRESS, amountBN],
               });
             }}
             disabled={isDisabled || checkingAllowance || allowance >= amountBN || amountBN === 0n || isApprovePending || isApproveConfirming}

@@ -2,5 +2,12 @@
 src = "src"
 out = "out"
 libs = ["node_modules", "lib"]
+remappings = [
+  "@aave-v3-core/=lib/aave-v3-core/",
+  "@aave-v3-periphery/=lib/aave-v3-periphery/",
+  "@openzeppelin-upgradeable/=lib/openzeppelin-contracts-upgradeable/",
+  "@openzeppelin/=lib/openzeppelin-contracts/",
+  "@aave-vault/=lib/Aave-Vault/"
+]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

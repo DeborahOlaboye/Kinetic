@@ -1,22 +1,17 @@
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { ProtocolType, MORPHO_FACTORY_ADDRESS, SKY_FACTORY_ADDRESS, AAVE_POOL_ADDRESS, USDC_ADDRESS, SPLITTER_CHAIN_ID } from '@/utils/constants';
+import { ProtocolType, MORPHO_FACTORY_ADDRESS, SKY_FACTORY_ADDRESS, AAVE_VAULT_ADDRESS, USDC_ADDRESS, SPLITTER_CHAIN_ID } from '@/utils/constants';
 import MorphoFactoryABI from '@/abis/MorphoCompounderStrategyFactory.json';
 import SkyFactoryABI from '@/abis/SkyCompounderStrategyFactory.json';
 import { Recipient } from '@/components/RecipientForm';
 
-const AavePoolABI = [
-  {
-    type: 'function',
-    name: 'supply',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { name: 'asset', type: 'address', internalType: 'address' },
-      { name: 'amount', type: 'uint256', internalType: 'uint256' },
-      { name: 'onBehalfOf', type: 'address', internalType: 'address' },
-      { name: 'referralCode', type: 'uint16', internalType: 'uint16' },
-    ],
-    outputs: [],
-  },
+const AaveVaultABI = [
+  { type: 'function', name: 'asset', stateMutability: 'view', inputs: [], outputs: [{ name: '', type: 'address' }] },
+  { type: 'function', name: 'totalAssets', stateMutability: 'view', inputs: [], outputs: [{ name: '', type: 'uint256' }] },
+  { type: 'function', name: 'totalSupply', stateMutability: 'view', inputs: [], outputs: [{ name: '', type: 'uint256' }] },
+  { type: 'function', name: 'convertToShares', stateMutability: 'view', inputs: [{ name: 'assets', type: 'uint256' }], outputs: [{ name: '', type: 'uint256' }] },
+  { type: 'function', name: 'convertToAssets', stateMutability: 'view', inputs: [{ name: 'shares', type: 'uint256' }], outputs: [{ name: '', type: 'uint256' }] },
+  { type: 'function', name: 'deposit', stateMutability: 'nonpayable', inputs: [ { name: 'assets', type: 'uint256' }, { name: 'receiver', type: 'address' } ], outputs: [{ name: 'shares', type: 'uint256' }] },
+  { type: 'function', name: 'redeem', stateMutability: 'nonpayable', inputs: [ { name: 'shares', type: 'uint256' }, { name: 'receiver', type: 'address' }, { name: 'owner', type: 'address' } ], outputs: [{ name: 'assets', type: 'uint256' }] },
 ] as const;
 
 interface DeployStrategyParams {
@@ -112,18 +107,16 @@ export function useDeployStrategy() {
         break;
 
       case ProtocolType.AAVE:
-        factoryAddress = AAVE_POOL_ADDRESS;
-        abi = AavePoolABI as any;
+        factoryAddress = AAVE_VAULT_ADDRESS;
+        abi = AaveVaultABI as any;
 
         writeContract({
           address: factoryAddress,
           abi: abi,
-          functionName: 'supply',
+          functionName: 'deposit',
           args: [
-            assetAddress ?? USDC_ADDRESS,
             amount ?? 1_000_000n,
             donationAddress,
-            0,
           ],
           chainId: SPLITTER_CHAIN_ID,
         });
