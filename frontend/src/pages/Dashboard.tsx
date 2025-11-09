@@ -4,6 +4,7 @@ import { RecipientList } from '@/components/RecipientList';
 import { ImpactStories } from '@/components/ImpactStories';
 import { ShareButton } from '@/components/ShareButton';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/store';
 import { useAccount } from 'wagmi';
 import { Button } from '@/components/ui/button';
@@ -11,33 +12,25 @@ import { useNavigate } from 'react-router';
 import { Separator } from '@/components/ui/separator';
 import { KineticParticles } from '@/components/KineticParticles';
 import { ShootingStars } from '@/components/ShootingStars';
+import { useAggregatedStrategyData } from '@/hooks/useAggregatedStrategyData';
+import type { Strategy } from '@/store';
 
 export function Dashboard() {
   const navigate = useNavigate();
   const { address } = useAccount();
   const { deployedStrategies } = useAppStore();
 
-
-  // Calculate total assets and yield from deployed strategies
-  // In production, this would fetch real values from contracts
-  const totalAssets = deployedStrategies.reduce(
-    (sum, strategy) => sum + BigInt(strategy.totalDeposited || '0'),
-    BigInt(0)
-  );
-
-  const totalYield = deployedStrategies.reduce(
-    (sum, strategy) => sum + BigInt(strategy.yieldGenerated || '0'),
-    BigInt(0)
-  );
-
-  // Use mock data if no real data yet
-  const displayTotalAssets = totalAssets > BigInt(0) ? totalAssets : BigInt(1000000000000000000); // 1 ETH worth
-  const displayYieldGenerated = totalYield > BigInt(0) ? totalYield : BigInt(50000000000000000); // 0.05 ETH worth
+  // Fetch real on-chain data for all strategies
+  const { totalAssets, totalYield } = useAggregatedStrategyData();
 
   const totalRecipients = deployedStrategies.reduce(
     (sum, strategy) => sum + strategy.recipients.length,
     0
   );
+
+  const handleViewDetails = (strategy: Strategy) => {
+    navigate(`/strategy/${strategy.address}`);
+  };
 
   return (
     <div className="relative">
@@ -49,8 +42,13 @@ export function Dashboard() {
       <div className="container mx-auto px-6 py-12 relative z-10">
         <div className="max-w-6xl mx-auto space-y-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Your Impact</h1>
-          <p className="text-muted-foreground">Track your perpetual funding and impact metrics</p>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold">Your Impact</h1>
+            <Badge variant="outline" className="border-[#78B288] text-[#78B288]">
+              Octant V2
+            </Badge>
+          </div>
+          <p className="text-muted-foreground">Track your perpetual funding and impact metrics powered by Octant V2</p>
         </div>
 
 
@@ -72,15 +70,15 @@ export function Dashboard() {
         {address && deployedStrategies.length > 0 && (
           <>
             <YieldCounter
-              totalAssets={displayTotalAssets}
-              yieldGenerated={displayYieldGenerated}
+              totalAssets={totalAssets}
+              yieldGenerated={totalYield}
               decimals={18}
             />
 
             <Separator />
 
             <ImpactStories
-              totalYield={displayYieldGenerated}
+              totalYield={totalYield}
               recipientCount={totalRecipients}
             />
 
@@ -97,7 +95,12 @@ export function Dashboard() {
                           <h3 className="text-lg font-semibold">{strategy.name}</h3>
                           <p className="text-sm text-muted-foreground">{strategy.protocol} Protocol</p>
                         </div>
-                        <Button variant="outline" size="sm" className="border-[#78B288] text-[#78B288] hover:bg-[#78B288] hover:text-white hover:scale-105 transition-all duration-300">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-[#78B288] text-[#78B288] hover:bg-[#78B288] hover:text-white hover:scale-105 transition-all duration-300"
+                          onClick={() => handleViewDetails(strategy)}
+                        >
                           View Details
                         </Button>
                       </div>
@@ -109,7 +112,7 @@ export function Dashboard() {
               <div className="space-y-6">
                 <RecipientList
                   recipients={deployedStrategies[0]?.recipients || []}
-                  totalYield={displayYieldGenerated}
+                  totalYield={totalYield}
                 />
               </div>
             </div>
@@ -117,7 +120,7 @@ export function Dashboard() {
             <Separator />
 
             <ShareButton
-              totalYield={displayYieldGenerated}
+              totalYield={totalYield}
               recipientCount={totalRecipients}
             />
           </>

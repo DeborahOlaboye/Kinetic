@@ -1,15 +1,15 @@
-# ImpactVault 🌟
+# Kinetic 🌟
 
-**Deploy & Track DeFi Yield for Public Goods**
+**Capital in Motion for Public Goods**
 
-ImpactVault is a decentralized application that enables users to deploy yield-generating strategies on Morpho and Sky protocols, automatically routing all generated yield to public goods projects. Built for the Octant DeFi Hackathon 2025.
+Kinetic is a decentralized application that enables users to deploy yield-generating strategies on Morpho and Aave protocols via Octant V2, automatically routing all generated yield to public goods projects. Built for the Octant DeFi Hackathon 2025.
 
 ## 🎯 Problem & Solution
 
 **Problem**: DeFi yields often benefit only individual users, missing opportunities for systematic public goods funding.
 
-**Solution**: ImpactVault creates "set it and forget it" yield donation vaults where:
-- Users deploy capital to battle-tested DeFi protocols (Morpho/Sky)
+**Solution**: Kinetic creates "set it and forget it" yield donation vaults where:
+- Users deploy capital to battle-tested DeFi protocols (Morpho/Aave) via Octant V2
 - Generated yield automatically flows to selected public goods
 - Users maintain full control of principal
 - Zero additional effort required after setup
@@ -17,9 +17,9 @@ ImpactVault is a decentralized application that enables users to deploy yield-ge
 ## ✨ Key Features
 
 ### 1. **Protocol Selection**
-- Choose between Morpho and Sky protocols
+- Choose between Morpho and Aave protocols
 - View estimated APY and protocol information
-- One-click protocol switching
+- Octant V2 integration for seamless yield routing
 
 ### 2. **Flexible Recipient Allocation**
 - Add multiple public goods recipients
@@ -64,11 +64,11 @@ ImpactVault is a decentralized application that enables users to deploy yield-ge
 - **Notifications**: Sonner
 
 ### Smart Contracts
-ImpactVault integrates with three core Octant v2 contracts:
+Kinetic integrates with Octant V2 and custom yield routing contracts:
 
-1. **MorphoCompounderStrategyFactory** - Deploy Morpho yield strategies
-2. **SkyCompounderStrategyFactory** - Deploy Sky protocol strategies
-3. **YieldDonatingTokenizedStrategy** - ERC-4626 vaults with yield donation
+1. **KineticOctantV2Deployer** - Unified deployer for Morpho strategies via Octant V2
+2. **AaveVaultFactory** - Deploy Aave ERC-4626 vaults with revenue splitting
+3. **PaymentSplitter** - Multi-recipient yield distribution with on-chain tracking
 
 ### Project Structure
 ```
@@ -87,15 +87,17 @@ src/
 │   ├── Dashboard.tsx
 │   └── StrategyDetail.tsx
 ├── hooks/              # Custom React hooks
-│   ├── useDeployStrategy.ts
-│   └── useStrategyData.ts
+│   ├── useDeployOctantV2Strategy.ts
+│   ├── useDeployAaveVault.ts
+│   ├── useAggregatedStrategyData.ts
+│   └── usePaymentSplitter.ts
 ├── utils/              # Utility functions
 │   ├── constants.ts
 │   └── formatters.ts
 ├── abis/               # Smart contract ABIs
-│   ├── MorphoCompounderStrategyFactory.json
-│   ├── SkyCompounderStrategyFactory.json
-│   └── YieldDonatingTokenizedStrategy.json
+│   ├── KineticOctantV2Deployer.json
+│   ├── AaveVaultFactory.json
+│   └── PaymentSplitter.json
 └── store.ts            # Zustand store
 ```
 
@@ -136,11 +138,11 @@ The app is pre-configured for Ethereum Mainnet using Tenderly RPC:
 ### Deploying a Strategy
 
 1. **Connect Wallet**: Click connect in the navigation bar
-2. **Select Protocol**: Choose Morpho or Sky on the Deploy page
+2. **Select Protocol**: Choose Morpho or Aave on the Deploy page
 3. **Add Recipients**:
    - Enter recipient name, address, and allocation percentage
    - Add multiple recipients (must total 100%)
-4. **Deploy**: Click "Deploy Strategy" and confirm transaction
+4. **Deploy**: Click "Deploy Strategy" and confirm transaction via Octant V2
 5. **Track**: View your strategy on the Dashboard
 
 ### Viewing Impact
@@ -154,21 +156,21 @@ Navigate to the Dashboard to see:
 
 ## 🎯 Hackathon Tracks
 
-ImpactVault targets three Octant DeFi Hackathon tracks:
+Kinetic targets three Octant DeFi Hackathon tracks:
 
 ### 1. Best Use of Yield Donating Strategy ($4,000)
-- Full integration with YieldDonatingTokenizedStrategy contract
-- Supports both Morpho and Sky protocols
-- Automated yield routing to public goods
+- Full Octant V2 integration via KineticOctantV2Deployer
+- Supports Morpho via Octant V2 + Aave via custom ERC-4626 vaults
+- Automated yield routing to public goods through PaymentSplitter
 
 ### 2. Best Public Goods Projects ($3,000)
-- Focus on systematic public goods funding
+- Focus on systematic perpetual funding ("capital in motion")
 - Impact storytelling and transparency
 - Social sharing to inspire others
 
 ### 3. Most Creative Use of Octant v2 ($1,500)
-- Novel "passive philanthropy" concept
-- Gamified impact visualization
+- Novel "set it and forget it" yield donation model
+- Unified deployer abstracting protocol complexity
 - Seamless UX for non-technical users
 
 ## 🔮 Future Enhancements
@@ -200,8 +202,8 @@ This project is built on the Octant v2 Hackathon Boilerplate.
 
 ## 🙏 Acknowledgments
 
-- Octant team for the excellent boilerplate and protocol
-- Morpho and Sky protocols for yield infrastructure
+- Octant team for the excellent V2 protocol and boilerplate
+- Morpho and Aave protocols for yield infrastructure
 - ShadCN for beautiful UI components
 - Wagmi team for blockchain integration tools
 

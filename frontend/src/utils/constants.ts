@@ -35,15 +35,58 @@ export const AAVE_POOL_ADDRESS = (
   "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
 ) as `0x${string}`;
 
+// Aave v3 PoolAddressesProvider (required for vault deployment)
+export const AAVE_POOL_ADDRESSES_PROVIDER = (
+  import.meta.env.VITE_AAVE_POOL_ADDRESSES_PROVIDER ||
+  "0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e"
+) as `0x${string}`;
+
+// Aave Vault Proxy Deployer (lightweight - deploys proxies using existing implementations)
+export const AAVE_VAULT_PROXY_DEPLOYER = (
+  import.meta.env.VITE_AAVE_VAULT_PROXY_DEPLOYER ||
+  "0x8901773847fF722b9AD70848B0BfF5103f97309F"
+) as `0x${string}`;
+
+// Aave Vault Factory (DEPRECATED - too large, use AAVE_VAULT_PROXY_DEPLOYER instead)
+export const AAVE_VAULT_FACTORY_ADDRESS = (
+  import.meta.env.VITE_AAVE_VAULT_FACTORY_ADDRESS ||
+  "0x0000000000000000000000000000000000000000"
+) as `0x${string}`;
+
+// Revenue Splitter address for deployed vault
+export const AAVE_REVENUE_SPLITTER_ADDRESS = (
+  import.meta.env.VITE_AAVE_REVENUE_SPLITTER_ADDRESS ||
+  "0x0000000000000000000000000000000000000000"
+) as `0x${string}`;
+
 // Recipient Splitter Factory (legacy)
 export const SPLITTER_FACTORY_ADDRESS = (
   import.meta.env.VITE_SPLITTER_FACTORY_ADDRESS ||
   "0x0000000000000000000000000000000000000000"
 ) as `0x${string}`;
 
-// Payment Splitter clone factory (Option B)
+// Payment Splitter clone factory (deployed)
 export const PAYMENT_SPLITTER_FACTORY_ADDRESS = (
   import.meta.env.VITE_PAYMENT_SPLITTER_FACTORY_ADDRESS ||
+  "0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496"
+) as `0x${string}`;
+
+// Octant V2 Deployer (wrapper for deploying Morpho/Sky strategies)
+export const OCTANT_V2_DEPLOYER_ADDRESS = (
+  import.meta.env.VITE_OCTANT_V2_DEPLOYER_ADDRESS ||
+  "0x0000000000000000000000000000000000000000"
+) as `0x${string}`;
+
+// Morpho Vaults V2 Integration
+// PaymentSplitterYieldAdapter - Custom adapter routing 100% yield to public goods
+export const MORPHO_ADAPTER_ADDRESS = (
+  import.meta.env.VITE_MORPHO_ADAPTER_ADDRESS ||
+  "0x0000000000000000000000000000000000000000"
+) as `0x${string}`;
+
+// Morpho VaultV2 instance that uses the PaymentSplitterYieldAdapter
+export const MORPHO_VAULT_ADDRESS = (
+  import.meta.env.VITE_MORPHO_VAULT_ADDRESS ||
   "0x0000000000000000000000000000000000000000"
 ) as `0x${string}`;
 

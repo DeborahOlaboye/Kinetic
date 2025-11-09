@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.25;
 
-import { SafeERC20, IERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { Address } from "@openzeppelin/contracts/utils/Address.sol";
-import { Context } from "@openzeppelin/contracts/utils/Context.sol";
-import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {Context} from "@openzeppelin/contracts/utils/Context.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 /**
  * @title PaymentSplitter
@@ -329,11 +329,11 @@ contract PaymentSplitter is Initializable, Context {
      * @param alreadyReleased Amount already paid to this payee
      * @return payment Amount currently owed to payee
      */
-    function _pendingPayment(
-        address account,
-        uint256 totalReceived,
-        uint256 alreadyReleased
-    ) private view returns (uint256) {
+    function _pendingPayment(address account, uint256 totalReceived, uint256 alreadyReleased)
+        private
+        view
+        returns (uint256)
+    {
         return (totalReceived * _shares[account]) / _totalShares - alreadyReleased;
     }
 

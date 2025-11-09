@@ -2,8 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router';
 import { Home } from './pages/Home';
 import { Deploy } from './pages/Deploy';
 import { Dashboard } from './pages/Dashboard';
-import { StrategyDetail } from './pages/StrategyDetail';
-import { PaymentSplitterPage } from './pages/PaymentSplitter';
+import { StrategyDetails } from './pages/StrategyDetails';
 import { ConnectWallet } from './components/ConnectWallet';
 import { Toaster } from '@/components/ui/sonner';
 import './App.css';
@@ -20,7 +19,6 @@ function App() {
 						<div className="flex gap-6 items-center">
 							<a href="/deploy" className="hover:text-[#78B288] transition-colors">Deploy Strategy</a>
 							<a href="/dashboard" className="hover:text-[#78B288] transition-colors">Your Impact</a>
-							<a href="/splitter" className="hover:text-[#B0B0DD] transition-colors">Payment Splitter</a>
 							<ConnectWallet />
 						</div>
 					</div>
@@ -30,8 +28,7 @@ function App() {
 					<Route path="/" element={<Home />} />
 					<Route path="/deploy" element={<Deploy />} />
 					<Route path="/dashboard" element={<Dashboard />} />
-					<Route path="/strategy/:address" element={<StrategyDetail />} />
-					<Route path="/splitter" element={<PaymentSplitterPage />} />
+					<Route path="/strategy/:strategyAddress" element={<StrategyDetails />} />
 				</Routes>
 				<Toaster />
 			</div>

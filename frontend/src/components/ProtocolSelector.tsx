@@ -11,22 +11,15 @@ export function ProtocolSelector({ selected, onSelect }: ProtocolSelectorProps) 
   const protocols = [
     {
       type: ProtocolType.MORPHO,
-      name: 'Morpho Blue',
-      description: 'Optimized lending markets generating sustainable yield for public goods',
+      name: 'Morpho',
+      description: 'Optimized lending markets via Octant V2 - route 100% yield to public goods',
       apy: '~5-8%',
       icon: '🔷'
     },
     {
-      type: ProtocolType.SKY,
-      name: 'Sky Protocol',
-      description: 'Decentralized savings protocol funding Ethereum builders perpetually',
-      apy: '~4-6%',
-      icon: '☁️'
-    },
-    {
       type: ProtocolType.AAVE,
       name: 'Aave V3',
-      description: 'Battle-tested lending protocol with deep liquidity for maximum impact',
+      description: 'Battle-tested lending with deep liquidity - perpetual public goods funding',
       apy: '~4-6%',
       icon: '🏦'
     }
@@ -39,7 +32,7 @@ export function ProtocolSelector({ selected, onSelect }: ProtocolSelectorProps) 
         <p className="text-muted-foreground">Choose your yield strategy to fund public goods perpetually</p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-2 gap-4">
         {protocols.map((protocol) => {
           const isSelected = selected === protocol.type;
           return (

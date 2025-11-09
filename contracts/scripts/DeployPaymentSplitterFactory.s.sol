@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.30;
-import "forge-std/Script.sol";
-import {PaymentSplitter} from "src/PaymentSplitter.sol";
-import {PaymentSplitterFactory} from "../contracts/PaymentSplitterFactory.sol";
+pragma solidity ^0.8.25;
+import {Script} from "forge-std/Script.sol";
+import {console2} from "forge-std/console2.sol";
+import {PaymentSplitter} from "../src/PaymentSplitter.sol";
+import {PaymentSplitterFactory} from "../src/PaymentSplitterFactory.sol";
 
 contract DeployPaymentSplitterFactory is Script {
     function run() external {
