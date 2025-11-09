@@ -58,6 +58,29 @@
   animation: pulse-scale ease-in-out infinite;
 }
 
+/* Shooting Star Animation */
+@keyframes shooting-star {
+  0% {
+    transform: translateX(0) translateY(0) rotate(var(--star-angle, 45deg));
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(300px) translateY(300px) rotate(var(--star-angle, 45deg));
+    opacity: 0;
+  }
+}
+
+.animate-shooting-star {
+  animation: shooting-star linear forwards;
+  opacity: 0;
+}
+
 /* Respect user preferences for reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .animate-drift {
@@ -67,6 +90,130 @@
     animation: none;
     opacity: 0.2;
   }
+  .animate-shooting-star {
+    animation: none;
+    display: none;
+  }
+}
+
+/* Glass Morphism Effect - Optimized for black background */
+.glass-effect {
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(26, 26, 26, 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6),
+              0 0 20px 0 rgba(120, 178, 136, 0.05);
+}
+
+/* Gradient Border Animation */
+@keyframes gradient-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-border {
+  position: relative;
+  background: linear-gradient(135deg, #78B288, #5A8F69, #00acc1);
+  background-size: 200% 200%;
+  animation: gradient-border 3s ease infinite;
+  padding: 2px;
+  border-radius: 0.5rem;
+}
+
+.gradient-border-content {
+  background: var(--card);
+  border-radius: calc(0.5rem - 2px);
+}
+
+/* Animated Background Gradient - Subtle black to dark gray */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-gradient-bg {
+  background: linear-gradient(
+    135deg,
+    #000000 0%,
+    #0a0a0a 25%,
+    #000000 50%,
+    #0a0a0a 75%,
+    #000000 100%
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+/* Glow Effect on Hover */
+.glow-on-hover {
+  transition: all 0.3s ease;
+}
+
+.glow-on-hover:hover {
+  box-shadow: 0 0 20px rgba(120, 178, 136, 0.5),
+              0 0 40px rgba(120, 178, 136, 0.3),
+              0 0 60px rgba(120, 178, 136, 0.2);
+  border-color: rgba(120, 178, 136, 0.8);
+}
+
+/* Shimmer Effect */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 3s infinite;
+}
+
+/* Better Card Shadows */
+.card-elevated {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-elevated:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.4),
+    0 10px 10px -5px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(120, 178, 136, 0.3);
 }
 
 .card {
@@ -78,26 +225,25 @@
 }
 
 :root {
-  /* Kinetic Theme - Based on Beefy-App Design System */
-  /* Dark Mode Color Palette from beefy-app */
-  --background: #242332;                    /* Main background (dark purple-gray) */
+  /* Kinetic Theme - Black background for maximum contrast and shine */
+  --background: #000000;                    /* Pure black background */
   --foreground: #ffffff;                    /* Primary text (pure white) */
-  --card: #606077;                          /* Card/Paper background (medium purple-gray) */
+  --card: #1a1a1a;                          /* Card background (very dark gray for contrast) */
   --card-foreground: #ffffff;               /* Card text */
-  --popover: #505067;                       /* Popover background */
+  --popover: #1a1a1a;                       /* Popover background */
   --popover-foreground: #ffffff;            /* Popover text */
   --primary: #ffffff;                       /* Primary color (white for dark mode) */
   --primary-foreground: #000000;            /* Primary foreground (black) */
-  --secondary: #3B3A4D;                     /* Secondary surface */
+  --secondary: #1a1a1a;                     /* Secondary surface */
   --secondary-foreground: #B0B0DD;          /* Secondary text (light purple-gray) */
-  --muted: #505067;                         /* Muted background */
-  --muted-foreground: #B0B0DD;              /* Muted text */
-  --accent: #2B2A3D;                        /* Accent/hover state */
+  --muted: #2a2a2a;                         /* Muted background */
+  --muted-foreground: #999999;              /* Muted text */
+  --accent: #1a1a1a;                        /* Accent/hover state */
   --accent-foreground: #ffffff;             /* Accent text */
   --destructive: #d32f2f;                   /* Retired/error state (dark red) */
   --destructive-foreground: #ffffff;        /* Destructive text */
-  --border: #2B2A3D;                        /* Border color */
-  --input: #505067;                         /* Input background */
+  --border: #2a2a2a;                        /* Border color */
+  --input: #1a1a1a;                         /* Input background */
   --ring: rgba(255, 255, 255, 0.3);         /* Focus ring */
   --chart-1: #78B288;                       /* Success green - funding active */
   --chart-2: #5A8F69;                       /* Dark green - impact metrics */
@@ -170,7 +316,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'proxima-nova', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background-color: #242332;
+    background-color: #000000;
     color: #ffffff;
   }
 

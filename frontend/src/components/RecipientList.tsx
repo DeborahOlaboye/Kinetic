@@ -16,18 +16,18 @@ interface RecipientListProps {
 export function RecipientList({ recipients, totalYield }: RecipientListProps) {
   if (recipients.length === 0) {
     return (
-      <Card className="p-8 text-center">
+      <Card className="p-8 text-center glass-card card-elevated">
         <p className="text-muted-foreground">No recipients configured</p>
       </Card>
     );
   }
 
   return (
-    <Card className="p-8">
+    <Card className="p-8 glass-card card-elevated">
       <h2 className="text-2xl font-bold mb-6">Perpetual Funding Recipients</h2>
       <div className="space-y-4">
         {recipients.map((recipient, index) => (
-          <div key={index} className="space-y-2">
+          <div key={index} className="space-y-2 p-4 glass-effect rounded-lg hover:bg-secondary/20 transition-all duration-300">
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-center gap-3">
@@ -43,7 +43,7 @@ export function RecipientList({ recipients, totalYield }: RecipientListProps) {
             {/* Visual percentage bar */}
             <div className="relative h-2 bg-muted rounded-full overflow-hidden">
               <div
-                className="absolute top-0 left-0 h-full bg-[#78B288] rounded-full transition-all duration-500"
+                className="absolute top-0 left-0 h-full bg-[#78B288] rounded-full transition-all duration-500 shimmer"
                 style={{ width: `${recipient.percentage}%` }}
               />
             </div>
@@ -65,7 +65,7 @@ export function RecipientList({ recipients, totalYield }: RecipientListProps) {
         </div>
         <div className="flex justify-between text-sm mt-2">
           <span className="text-muted-foreground">Total Allocation</span>
-          <span className="font-semibold text-[#78B288]">
+          <span className="font-semibold text-[#78B288] shimmer">
             {recipients.reduce((sum, r) => sum + r.percentage, 0)}%
           </span>
         </div>

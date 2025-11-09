@@ -41,31 +41,36 @@ export function ProtocolSelector({ selected, onSelect }: ProtocolSelectorProps) 
 
       <div className="grid md:grid-cols-3 gap-4">
         {protocols.map((protocol) => {
+          const isSelected = selected === protocol.type;
           return (
-          <Card
+          <div
             key={protocol.type}
-            className={`p-6 cursor-pointer transition-all duration-300 hover:border-[#78B288] ${
-              selected === protocol.type
-                ? 'border-[#78B288] bg-[#78B288]/10'
-                : 'border-border'
-            }`}
-            onClick={() => onSelect(protocol.type)}
+            className={isSelected ? 'gradient-border' : ''}
           >
-            <div className="text-4xl mb-4">{protocol.icon}</div>
-            <h3 className="text-xl font-bold mb-2">{protocol.name}</h3>
-            <p className="text-muted-foreground text-sm mb-4">{protocol.description}</p>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Est. APY</span>
-              <span className="text-[#78B288] font-semibold">{protocol.apy}</span>
-            </div>
-            {selected === protocol.type && (
-              <div className="mt-4">
-                <Button variant="outline" className="w-full border-[#78B288] text-[#78B288] hover:bg-[#78B288] hover:text-white" size="sm">
-                  Selected ✓
-                </Button>
+            <Card
+              className={`p-6 cursor-pointer transition-all duration-300 glass-card card-elevated ${
+                isSelected
+                  ? 'gradient-border-content bg-[#78B288]/10'
+                  : 'glow-on-hover'
+              }`}
+              onClick={() => onSelect(protocol.type)}
+            >
+              <div className="text-4xl mb-4">{protocol.icon}</div>
+              <h3 className="text-xl font-bold mb-2">{protocol.name}</h3>
+              <p className="text-muted-foreground text-sm mb-4">{protocol.description}</p>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Est. APY</span>
+                <span className="text-[#78B288] font-semibold">{protocol.apy}</span>
               </div>
-            )}
-          </Card>
+              {isSelected && (
+                <div className="mt-4">
+                  <Button variant="outline" className="w-full border-[#78B288] text-[#78B288] hover:bg-[#78B288] hover:text-white hover:scale-105 transition-all duration-300" size="sm">
+                    Selected ✓
+                  </Button>
+                </div>
+              )}
+            </Card>
+          </div>
           );
         })}
       </div>
