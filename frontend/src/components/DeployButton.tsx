@@ -92,7 +92,7 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
     }
 
     try {
-      const strategyName = `ImpactVault-${protocol}-${Date.now()}`;
+      const strategyName = `Kinetic-${protocol}-${Date.now()}`;
       deploy({
         protocol,
         name: strategyName,
@@ -155,11 +155,11 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
 
       if (useSplitter) {
         toast.success('Strategy deployed successfully!', {
-          description: `All ${deployParams.recipients.length} recipients will receive their allocated yield automatically!`,
+          description: `Now funding ${deployParams.recipients.length} public goods projects perpetually.`,
         });
       } else {
         toast.success('Strategy deployed successfully!', {
-          description: `⚠️ Direct mode: Only ${deployParams.recipients[0]?.name} will receive yield.`,
+          description: `⚠️ Direct mode: Only ${deployParams.recipients[0]?.name} will receive perpetual funding.`,
         });
       }
 
@@ -230,43 +230,43 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
   return (
     <div className="space-y-4">
       {/* Splitter Toggle */}
-      <div className="flex items-center justify-between p-3 bg-gray-900 rounded-lg border border-gray-800">
+      <div className="flex items-center justify-between p-3 bg-secondary rounded-lg border border-border">
         <div>
           <p className="text-sm font-medium">Multi-Recipient Distribution</p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             {effectiveUseSplitter
-              ? 'Using PaymentSplitter (all recipients get their share)'
-              : '⚠️ Direct mode (only first recipient gets yield)'}
+              ? 'Using PaymentSplitter (all recipients get funding)'
+              : '⚠️ Direct mode (only first recipient gets funding)'}
           </p>
         </div>
         <button
           type="button"
           onClick={() => protocol === ProtocolType.AAVE ? null : setUseSplitter(!useSplitter)}
           className={`px-3 py-1 rounded ${
-            effectiveUseSplitter ? 'bg-green-600 hover:bg-green-700' : 'bg-yellow-600 hover:bg-yellow-700'
-          } transition-colors text-xs ${protocol === ProtocolType.AAVE ? 'opacity-50 cursor-not-allowed' : ''}`}
+            effectiveUseSplitter ? 'bg-[#78B288] hover:bg-[#5A8F69]' : 'bg-[#ff9800] hover:bg-[#f57c00]'
+          } transition-colors text-xs text-white ${protocol === ProtocolType.AAVE ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {effectiveUseSplitter ? 'ON' : 'OFF'}
         </button>
       </div>
 
       {!useSplitter && recipients.length > 1 && (
-        <div className="p-3 bg-yellow-900/20 border border-yellow-600 rounded-lg">
-          <p className="text-yellow-400 text-sm font-medium">⚠️ Warning</p>
-          <p className="text-yellow-300 text-xs mt-1">
-            Direct mode is active. Only <strong>{recipients[0]?.name}</strong> will receive yield.
+        <div className="p-3 bg-[#ff9800]/10 border border-[#ff9800] rounded-lg">
+          <p className="text-[#ff9800] text-sm font-medium">⚠️ Warning</p>
+          <p className="text-muted-foreground text-xs mt-1">
+            Direct mode is active. Only <strong>{recipients[0]?.name}</strong> will receive perpetual funding.
             The other {recipients.length - 1} recipient(s) will not get any funds.
           </p>
         </div>
       )}
 
       {protocol === ProtocolType.AAVE && (
-        <div className="space-y-3 p-3 bg-gray-900 rounded-lg border border-gray-800">
+        <div className="space-y-3 p-3 bg-secondary rounded-lg border border-border">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-400">Asset</label>
+              <label className="text-xs text-muted-foreground">Asset</label>
               <select
-                className="mt-1 w-full bg-black border border-gray-700 rounded px-2 py-2 text-sm"
+                className="mt-1 w-full bg-input border border-border rounded px-2 py-2 text-sm text-foreground"
                 value={selectedSymbol}
                 onChange={(e) => setSelectedSymbol(e.target.value as any)}
               >
@@ -276,11 +276,11 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
               </select>
             </div>
             <div>
-              <label className="text-xs text-gray-400">Amount</label>
+              <label className="text-xs text-muted-foreground">Amount</label>
               <input
                 type="text"
                 inputMode="decimal"
-                className="mt-1 w-full bg-black border border-gray-700 rounded px-2 py-2 text-sm"
+                className="mt-1 w-full bg-input border border-border rounded px-2 py-2 text-sm text-foreground"
                 value={amountInput}
                 onChange={(e) => setAmountInput(e.target.value)}
                 placeholder={`e.g. 1.0`}
@@ -288,7 +288,7 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
             </div>
           </div>
 
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-muted-foreground">
             Allowance: {checkingAllowance ? 'checking...' : `${allowance.toString()} base units`} | Needed: {amountBN.toString()}
           </div>
 
@@ -329,19 +329,19 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
       </Button>
 
       {!address && (
-        <p className="text-sm text-yellow-400 text-center">
+        <p className="text-sm text-[#ff9800] text-center">
           Please connect your wallet to deploy
         </p>
       )}
 
       {address && !isValid && recipients.length > 0 && (
-        <p className="text-sm text-yellow-400 text-center">
+        <p className="text-sm text-[#ff9800] text-center">
           Total allocation must equal 100%
         </p>
       )}
 
       {address && recipients.length === 0 && (
-        <p className="text-sm text-yellow-400 text-center">
+        <p className="text-sm text-[#ff9800] text-center">
           Please add at least one recipient
         </p>
       )}

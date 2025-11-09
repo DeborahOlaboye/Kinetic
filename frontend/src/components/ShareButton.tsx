@@ -15,7 +15,7 @@ interface ShareButtonProps {
 export function ShareButton({ totalYield, recipientCount = 0 }: ShareButtonProps) {
   const yieldValue = totalYield ? (Number(totalYield) / 1e18).toFixed(4) : '0';
 
-  const shareText = `I'm funding public goods with ImpactVault! 🌟\n\n💰 $${yieldValue} yield generated\n🎯 ${recipientCount} projects supported\n\nMy DeFi yield is making a real-world impact. Join me in supporting public goods! #ImpactVault #PublicGoods #DeFi`;
+  const shareText = `⚡ Funding public goods perpetually with Kinetic\n\n💰 $${yieldValue} generated\n🎯 ${recipientCount} projects funded forever\n\nCapital in motion for public goods. Deploy once, impact perpetually. #Kinetic #PublicGoods #Ethereum`;
 
   const handleCopyLink = () => {
     const url = window.location.origin;

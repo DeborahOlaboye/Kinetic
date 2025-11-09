@@ -55,7 +55,7 @@ export const useAppStore = create<AppState>()(
         set({ selectedStrategy: strategy })
     }),
     {
-      name: 'impactvault-storage', // localStorage key
+      name: 'kinetic-storage', // localStorage key
       partialize: (state) => ({
         deployedStrategies: state.deployedStrategies,
       }),

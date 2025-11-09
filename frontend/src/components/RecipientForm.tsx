@@ -58,11 +58,11 @@ export function RecipientForm({ recipients, onChange }: RecipientFormProps) {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold mb-2">Add Recipients</h2>
-          <p className="text-gray-400">Specify public goods projects to receive yield</p>
+          <p className="text-muted-foreground">Specify public goods projects to receive perpetual funding</p>
         </div>
         <div className="text-right">
-          <div className="text-sm text-gray-500">Total Allocation</div>
-          <div className={`text-2xl font-bold ${isValid ? 'text-green-400' : 'text-yellow-400'}`}>
+          <div className="text-sm text-muted-foreground">Total Allocation</div>
+          <div className={`text-2xl font-bold ${isValid ? 'text-[#78B288]' : 'text-[#ff9800]'}`}>
             {totalPercentage}%
           </div>
         </div>
@@ -76,12 +76,12 @@ export function RecipientForm({ recipients, onChange }: RecipientFormProps) {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="font-semibold">{recipient.name}</div>
-                  <div className="text-sm text-gray-500 font-mono">
+                  <div className="text-sm text-muted-foreground font-mono">
                     {recipient.address.slice(0, 6)}...{recipient.address.slice(-4)}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge variant="outline" className="text-lg">
+                  <Badge variant="outline" className="text-lg border-[#78B288] text-[#78B288]">
                     {recipient.percentage}%
                   </Badge>
                   <Button
@@ -153,7 +153,7 @@ export function RecipientForm({ recipients, onChange }: RecipientFormProps) {
       </Card>
 
       {!isValid && recipients.length > 0 && (
-        <div className="text-yellow-400 text-sm text-center">
+        <div className="text-[#ff9800] text-sm text-center">
           Total allocation must equal 100%
         </div>
       )}

@@ -1,5 +1,6 @@
-/* Import Arcane Fable font */
-@import 'https://cdn.jsdelivr.net/gh/juliopavila/cdn-fonts@main/css/font.css';
+/* Import Beefy-App Design System Fonts */
+@import url('https://use.typekit.net/soo7wzu.css'); /* proxima-nova */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;400;500;700;900&display=swap');
 
 @import "tailwindcss";
 
@@ -28,6 +29,46 @@
   }
 }
 
+/* Kinetic Particles Animations */
+@keyframes drift {
+  from {
+    transform: translateY(0) translateX(0);
+  }
+  to {
+    transform: translateY(-100vh) translateX(20px);
+  }
+}
+
+@keyframes pulse-scale {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.8);
+    opacity: 0.6;
+  }
+}
+
+.animate-drift {
+  animation: drift linear infinite;
+}
+
+.animate-pulse-scale {
+  animation: pulse-scale ease-in-out infinite;
+}
+
+/* Respect user preferences for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift {
+    animation: none;
+  }
+  .animate-pulse-scale {
+    animation: none;
+    opacity: 0.2;
+  }
+}
+
 .card {
   padding: 2em;
 }
@@ -37,32 +78,33 @@
 }
 
 :root {
-  /* Custom Dark Theme - Octant Hackathon */
-  --background: #0d0d0d;
-  --foreground: rgba(254, 253, 244, 0.8);
-  --card: hsl(0 0% 8%);
-  --card-foreground: rgba(254, 253, 244, 0.8);
-  --popover: hsl(0 0% 6%);
-  --popover-foreground: rgba(254, 253, 244, 0.8);
-  --primary: rgba(254, 253, 244, 0.9);
-  --primary-foreground: hsl(0 0% 9%);
-  --secondary: hsl(0 0% 14.9%);
-  --secondary-foreground: rgba(254, 253, 244, 0.8);
-  --muted: hsl(0 0% 14.9%);
-  --muted-foreground: rgba(254, 253, 244, 0.5);
-  --accent: hsl(0 0% 18%);
-  --accent-foreground: rgba(254, 253, 244, 0.9);
-  --destructive: hsl(0 62.8% 50.6%);
-  --destructive-foreground: rgba(254, 253, 244, 0.98);
-  --border: hsl(0 0% 20%);
-  --input: hsl(0 0% 18%);
-  --ring: rgba(254, 253, 244, 0.3);
-  --chart-1: hsl(220 70% 50%);
-  --chart-2: hsl(160 60% 45%);
-  --chart-3: hsl(30 80% 55%);
-  --chart-4: hsl(280 65% 60%);
-  --chart-5: hsl(340 75% 55%);
-  --radius: 0.5rem;
+  /* Kinetic Theme - Based on Beefy-App Design System */
+  /* Dark Mode Color Palette from beefy-app */
+  --background: #242332;                    /* Main background (dark purple-gray) */
+  --foreground: #ffffff;                    /* Primary text (pure white) */
+  --card: #606077;                          /* Card/Paper background (medium purple-gray) */
+  --card-foreground: #ffffff;               /* Card text */
+  --popover: #505067;                       /* Popover background */
+  --popover-foreground: #ffffff;            /* Popover text */
+  --primary: #ffffff;                       /* Primary color (white for dark mode) */
+  --primary-foreground: #000000;            /* Primary foreground (black) */
+  --secondary: #3B3A4D;                     /* Secondary surface */
+  --secondary-foreground: #B0B0DD;          /* Secondary text (light purple-gray) */
+  --muted: #505067;                         /* Muted background */
+  --muted-foreground: #B0B0DD;              /* Muted text */
+  --accent: #2B2A3D;                        /* Accent/hover state */
+  --accent-foreground: #ffffff;             /* Accent text */
+  --destructive: #d32f2f;                   /* Retired/error state (dark red) */
+  --destructive-foreground: #ffffff;        /* Destructive text */
+  --border: #2B2A3D;                        /* Border color */
+  --input: #505067;                         /* Input background */
+  --ring: rgba(255, 255, 255, 0.3);         /* Focus ring */
+  --chart-1: #78B288;                       /* Success green - funding active */
+  --chart-2: #5A8F69;                       /* Dark green - impact metrics */
+  --chart-3: #ff9800;                       /* Warning orange */
+  --chart-4: #00acc1;                       /* Info cyan */
+  --chart-5: #B9AEA5;                       /* Warm gray accent */
+  --radius: 0.1875rem;                      /* 3px - beefy-app border radius */
 }
 
 @theme inline {
@@ -127,24 +169,24 @@
 @layer base {
   body {
     @apply bg-background text-foreground;
-    font-family: Inter, system-ui, -apple-system, sans-serif;
-    background-color: #0d0d0d;
-    color: rgba(254, 253, 244, 0.8);
+    font-family: 'proxima-nova', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #242332;
+    color: #ffffff;
   }
 
-  /* Arcane Fable for headings */
+  /* Roboto Slab for headings - Beefy-App Design System */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Arcane Fable', cursive, serif;
-    color: rgba(254, 253, 244, 0.95);
-    font-weight: 400;
-    letter-spacing: 0.02em;
+    font-family: 'Roboto Slab', 'Times New Roman', serif;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0;
   }
 
   code {
-    font-family: 'Courier New', monospace;
-    background-color: rgba(254, 253, 244, 0.08);
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    background-color: rgba(255, 255, 255, 0.08);
     padding: 0.15rem 0.4rem;
-    border-radius: 0.25rem;
+    border-radius: 0.1875rem;
     font-size: 0.9em;
   }
 }
