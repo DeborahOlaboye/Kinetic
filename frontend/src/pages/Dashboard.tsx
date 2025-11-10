@@ -16,13 +16,13 @@ import { useAggregatedStrategyData } from '@/hooks/useAggregatedStrategyData';
 import { useUserStrategies } from '@/hooks/useUserStrategies';
 import { useUserAaveVaults } from '@/hooks/useUserAaveVaults';
 import { toast } from 'sonner';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import type { Strategy } from '@/store';
 
 export function Dashboard() {
   const navigate = useNavigate();
   const { address } = useAccount();
-  const { deployedStrategies: localStrategies, clearInvalidStrategies } = useAppStore();
+  const { deployedStrategies: localStrategies, clearInvalidStrategies, syncStrategies } = useAppStore();
 
   // Fetch Morpho/Sky strategies from blockchain
   const { strategies: onChainMorphoSky } = useUserStrategies(address);
@@ -41,6 +41,14 @@ export function Dashboard() {
     // Filter out invalid local strategies
     return localStrategies.filter(s => s.address && s.address.length === 42);
   }, [onChainMorphoSky, onChainAave, localStrategies]);
+
+  // Cache blockchain data to localStorage for faster subsequent loads
+  useEffect(() => {
+    const allOnChainStrategies = [...onChainMorphoSky, ...onChainAave];
+    if (allOnChainStrategies.length > 0) {
+      syncStrategies(allOnChainStrategies);
+    }
+  }, [onChainMorphoSky, onChainAave, syncStrategies]);
 
   // Fetch real on-chain data for all strategies
   const { totalAssets, totalYield } = useAggregatedStrategyData(deployedStrategies);

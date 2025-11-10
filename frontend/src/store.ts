@@ -28,6 +28,7 @@ interface AppState {
   setSelectedStrategy: (strategy: Strategy | null) => void;
   removeStrategy: (address: string) => void;
   clearInvalidStrategies: () => void;
+  syncStrategies: (strategies: Strategy[]) => void; // NEW: Sync blockchain data to cache
 }
 
 export const useAppStore = create<AppState>()(
@@ -62,7 +63,11 @@ export const useAppStore = create<AppState>()(
       clearInvalidStrategies: () =>
         set((state) => ({
           deployedStrategies: state.deployedStrategies.filter(s => s.address && s.address.length === 42)
-        }))
+        })),
+      syncStrategies: (strategies) => {
+        console.log('Syncing blockchain strategies to cache:', strategies.length);
+        set({ deployedStrategies: strategies });
+      }
     }),
     {
       name: 'kinetic-storage', // localStorage key

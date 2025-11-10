@@ -9,13 +9,41 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft } from 'lucide-react';
 import { KineticParticles } from '@/components/KineticParticles';
 import { ShootingStars } from '@/components/ShootingStars';
+import { useAccount } from 'wagmi';
+import { useUserStrategies } from '@/hooks/useUserStrategies';
+import { useUserAaveVaults } from '@/hooks/useUserAaveVaults';
+import { useMemo, useEffect } from 'react';
 
 export function StrategyDetails() {
   const { strategyAddress } = useParams<{ strategyAddress: string }>();
   const navigate = useNavigate();
-  const { deployedStrategies } = useAppStore();
+  const { address } = useAccount();
+  const { deployedStrategies: localStrategies, syncStrategies } = useAppStore();
 
-  const strategy = deployedStrategies.find(s => s.address === strategyAddress);
+  // Fetch strategies from blockchain (same as Dashboard)
+  const { strategies: onChainMorphoSky } = useUserStrategies(address);
+  const { vaults: onChainAave } = useUserAaveVaults(address);
+
+  // Merge all strategies (on-chain + localStorage)
+  const allStrategies = useMemo(() => {
+    const allOnChainStrategies = [...onChainMorphoSky, ...onChainAave];
+
+    // Prefer on-chain data, fallback to localStorage
+    if (allOnChainStrategies.length > 0) {
+      return allOnChainStrategies;
+    }
+    return localStrategies.filter(s => s.address && s.address.length === 42);
+  }, [onChainMorphoSky, onChainAave, localStrategies]);
+
+  // Cache blockchain data to localStorage for faster subsequent loads
+  useEffect(() => {
+    const allOnChainStrategies = [...onChainMorphoSky, ...onChainAave];
+    if (allOnChainStrategies.length > 0) {
+      syncStrategies(allOnChainStrategies);
+    }
+  }, [onChainMorphoSky, onChainAave, syncStrategies]);
+
+  const strategy = allStrategies.find(s => s.address === strategyAddress);
 
   if (!strategy) {
     return (
