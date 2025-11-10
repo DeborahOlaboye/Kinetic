@@ -110,7 +110,7 @@ src/
 
 ### Installation
 
-1. Clone the repository:
+1. Clone the repository: 
 ```bash
 git clone https://github.com/golemfoundation/octant-v2-hackathon-dapp-boilerplate.git
 cd octant-v2-hackathon-dapp-boilerplate
