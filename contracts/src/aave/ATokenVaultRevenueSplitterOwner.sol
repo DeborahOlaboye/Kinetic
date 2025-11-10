@@ -73,11 +73,10 @@ contract ATokenVaultRevenueSplitterOwner is Ownable {
      * @param recipients The recipients to set for the revenue split. Duplicates are not allowed. The recipients
      * configuration cannot be modified afterwards.
      */
-    constructor(address vault, address owner, Recipient[] memory recipients) {
+    constructor(address vault, address owner, Recipient[] memory recipients) Ownable(owner) {
         VAULT = IATokenVault(vault);
         require(recipients.length > 0, "MISSING_RECIPIENTS");
         _setRecipients(recipients);
-        _transferOwnership(owner);
     }
 
     /**

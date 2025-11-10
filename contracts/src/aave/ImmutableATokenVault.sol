@@ -60,7 +60,8 @@ contract ImmutableATokenVault is ATokenVault {
         __ERC20_init(shareName, shareSymbol);
         __EIP712_init(shareName, "1");
         _setFee(initialFee);
-        IERC20Upgradeable(underlying).safeApprove(address(AAVE_POOL), type(uint256).max);
+        // Using forceApprove for OpenZeppelin v5 compatibility
+        IERC20Upgradeable(underlying).forceApprove(address(AAVE_POOL), type(uint256).max);
         _handleDeposit(initialLockDeposit, address(this), msg.sender, false);
     }
 

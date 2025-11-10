@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title PaymentSplitterYieldAdapter
@@ -94,8 +94,8 @@ contract PaymentSplitterYieldAdapter is ReentrancyGuard {
         // Generate unique adapter ID
         adapterId = keccak256(abi.encode("kinetic/payment-splitter", address(this)));
 
-        // Approve PaymentSplitter to receive yield
-        IERC20(asset).safeApprove(_paymentSplitter, type(uint256).max);
+        // Approve PaymentSplitter to receive yield (using forceApprove for OpenZeppelin v5)
+        IERC20(asset).forceApprove(_paymentSplitter, type(uint256).max);
     }
 
     /**
@@ -129,8 +129,8 @@ contract PaymentSplitterYieldAdapter is ReentrancyGuard {
         // Transfer assets from parent vault
         IERC20(asset).safeTransferFrom(parentVault, address(this), assets);
 
-        // Approve and deposit into underlying vault
-        IERC20(asset).safeApprove(vault, assets);
+        // Approve and deposit into underlying vault (using forceApprove for OpenZeppelin v5)
+        IERC20(asset).forceApprove(vault, assets);
         uint256 shares = IERC4626(vault).deposit(assets, address(this));
 
         // Update allocation tracking

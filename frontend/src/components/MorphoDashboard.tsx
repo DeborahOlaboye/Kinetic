@@ -2,70 +2,161 @@ import { useAccount } from 'wagmi';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { useMorphoAdapter } from '@/hooks/useMorphoAdapter';
-import { formatUnits } from 'viem';
-import { SUPPORTED_ASSETS, MORPHO_ADAPTER_ADDRESS, MORPHO_VAULT_ADDRESS } from '@/utils/constants';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { useEffect, useState } from 'react';
-import { Loader2, TrendingUp, Wallet, Users, BarChart3, RefreshCw } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { TrendingUp, Wallet, Users, ExternalLink, Plus, ArrowDownCircle, Loader2, Send, DollarSign } from 'lucide-react';
+import { useAppStore } from '@/store';
+import { useUserStrategies } from '@/hooks/useUserStrategies';
+import { useMorphoStrategy, useDepositToMorphoStrategy, useWithdrawFromMorphoStrategy } from '@/hooks/useMorphoStrategy';
+import { usePaymentSplitter } from '@/hooks/usePaymentSplitter';
+import { formatUnits, parseUnits } from 'viem';
+import { SUPPORTED_ASSETS, TENDERLY_EXPLORER_URL, PAYMENT_SPLITTER_ADDRESS } from '@/utils/constants';
 
 /**
- * Morpho Vaults V2 Dashboard Component
+ * Morpho Dashboard Component (Octant V2 Integration)
  *
- * Displays Morpho adapter information, total assets, yield donated, and market allocations
+ * Displays Morpho strategy information deployed via Octant V2:
+ * - Strategy overview and status
+ * - How Morpho + Octant V2 works
+ * - PaymentSplitter integration
+ * - Recipient list
  */
 export function MorphoDashboard() {
   const { address } = useAccount();
-  const [selectedMarketId, setSelectedMarketId] = useState<`0x${string}` | null>(null);
+  const { deployedStrategies: localStrategies } = useAppStore();
+  const [depositAmount, setDepositAmount] = useState('');
+  const [withdrawAmount, setWithdrawAmount] = useState('');
 
-  const {
-    isLoading,
-    error,
-    marketCount,
-    totalPrincipal,
-    totalYieldDonated,
-    realAssets,
-    getAllocation,
-    getHarvestableYield,
-    harvestYield,
-  } = useMorphoAdapter();
+  // Fetch strategies from blockchain
+  const { strategies: onChainStrategies } = useUserStrategies(address);
 
-  // For demo purposes - in production, you'd fetch actual market IDs from the contract
-  // This would typically come from events or a separate query
-  const [marketIds, setMarketIds] = useState<`0x${string}`[]>([]);
-
-  useEffect(() => {
-    if (error) {
-      toast.error(`Error: ${error.message}`);
+  // Merge strategies (prefer on-chain)
+  const deployedStrategies = useMemo(() => {
+    if (onChainStrategies.length > 0) {
+      return onChainStrategies;
     }
-  }, [error]);
+    return localStrategies.filter(s => s.address && s.address.length === 42);
+  }, [onChainStrategies, localStrategies]);
 
-  const handleHarvest = async (marketId: `0x${string}`) => {
+  // Find the most recently deployed Morpho strategy
+  const activeStrategy = useMemo(() => {
+    const morphoStrategies = deployedStrategies.filter(s => s.protocol === 'Morpho');
+    return morphoStrategies.length > 0
+      ? morphoStrategies[morphoStrategies.length - 1]
+      : null;
+  }, [deployedStrategies]);
+
+  const strategyAddress = activeStrategy?.address as `0x${string}` | undefined;
+
+  // Get strategy data
+  const { totalAssets, userShares, userAssets, assetAddress, depositLimit, refetchAll } = useMorphoStrategy(
+    strategyAddress,
+    address
+  );
+
+  // Deposit and withdraw hooks
+  const { approve, deposit, isPending: isDepositPending, isSuccess: isDepositSuccess } = useDepositToMorphoStrategy(
+    strategyAddress,
+    assetAddress
+  );
+  const { withdraw, isPending: isWithdrawPending, isSuccess: isWithdrawSuccess } = useWithdrawFromMorphoStrategy(
+    strategyAddress
+  );
+
+  // Determine asset details
+  const assetDetails = useMemo(() => {
+    return SUPPORTED_ASSETS.find(a => a.address === assetAddress);
+  }, [assetAddress]);
+
+  // PaymentSplitter integration
+  const paymentSplitter = usePaymentSplitter(
+    PAYMENT_SPLITTER_ADDRESS,
+    assetAddress,
+    activeStrategy?.recipients
+  );
+
+  // Debug logging
+  console.log('MorphoDashboard Debug:', {
+    activeStrategyAddress: activeStrategy?.address,
+    strategyName: activeStrategy?.name,
+    assetAddress,
+    paymentSplitterAddress: PAYMENT_SPLITTER_ADDRESS,
+    recipientCount: activeStrategy?.recipients.length,
+    hasAssetAddress: !!assetAddress,
+  });
+
+  // Refetch after deposit success
+  useEffect(() => {
+    if (isDepositSuccess) {
+      refetchAll();
+      setDepositAmount('');
+      toast.success('Deposit successful!');
+    }
+  }, [isDepositSuccess, refetchAll]);
+
+  // Refetch after withdraw success
+  useEffect(() => {
+    if (isWithdrawSuccess) {
+      refetchAll();
+      setWithdrawAmount('');
+      toast.success('Withdrawal successful!');
+    }
+  }, [isWithdrawSuccess, refetchAll]);
+
+  // Refetch PaymentSplitter balance after distribution
+  useEffect(() => {
+    if (paymentSplitter.isSuccess) {
+      paymentSplitter.refetchBalance();
+      toast.success('Yield distributed to all recipients!');
+    }
+  }, [paymentSplitter.isSuccess]);
+
+  // Handle deposit
+  const handleDeposit = async () => {
+    if (!address || !depositAmount) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
     try {
-      toast.loading('Harvesting yield...');
-      const txHash = await harvestYield(marketId);
-      toast.success(`Yield harvested! Tx: ${txHash}`);
+      const amount = parseUnits(depositAmount, assetDetails?.decimals || 18);
+      await approve(amount);
+      await deposit(amount, address);
     } catch (err) {
-      toast.error(`Failed to harvest: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      console.error('Deposit failed:', err);
+    }
+  };
+
+  // Handle withdraw
+  const handleWithdraw = async () => {
+    if (!address || !withdrawAmount) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      const amount = parseUnits(withdrawAmount, assetDetails?.decimals || 18);
+      await withdraw(amount, address, address);
+    } catch (err) {
+      console.error('Withdrawal failed:', err);
     }
   };
 
   if (!address) {
     return (
       <Card className="p-8 text-center glass-card card-elevated">
-        <p className="text-muted-foreground">Connect your wallet to view Morpho Vaults V2</p>
+        <p className="text-muted-foreground">Connect your wallet to view your Morpho strategy</p>
       </Card>
     );
   }
 
-  // Check if adapter is deployed
-  if (MORPHO_ADAPTER_ADDRESS === '0x0000000000000000000000000000000000000000') {
+  if (!activeStrategy) {
     return (
       <Card className="p-8 text-center glass-card card-elevated">
-        <p className="text-muted-foreground mb-4">Morpho adapter not yet deployed</p>
+        <p className="text-muted-foreground mb-4">No Morpho strategies deployed yet</p>
         <p className="text-sm text-muted-foreground">
-          Deploy the PaymentSplitterYieldAdapter contract to start using Morpho Vaults V2
+          Deploy a Morpho strategy from the Deploy page to start routing yield to public goods
         </p>
       </Card>
     );
@@ -73,12 +164,12 @@ export function MorphoDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Adapter Overview */}
+      {/* Strategy Overview */}
       <Card className="p-8 glass-card card-elevated">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Morpho Vaults V2 Adapter</h2>
+          <h2 className="text-2xl font-bold">Morpho Strategy Overview</h2>
           <Badge variant="outline" className="border-[#78B288] text-[#78B288]">
-            Active Markets: {marketCount?.toString() || '0'}
+            Octant V2 • {assetDetails?.symbol || 'Loading...'}
           </Badge>
         </div>
 
@@ -86,292 +177,362 @@ export function MorphoDashboard() {
           <div className="shimmer p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <Wallet className="h-4 w-4 text-[#78B288]" />
-              <p className="text-sm text-muted-foreground">Total Assets</p>
+              <p className="text-sm text-muted-foreground">Total Deposits</p>
             </div>
-            {realAssets !== undefined ? (
-              <p className="text-2xl font-bold">
-                {formatUnits(realAssets, 6)} USDC
-              </p>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-5 w-5 animate-spin text-[#78B288]" />
-                <p className="text-lg text-muted-foreground">Loading...</p>
-              </div>
-            )}
+            <p className="text-2xl font-bold">
+              {formatUnits(totalAssets, assetDetails?.decimals || 18)} {assetDetails?.symbol}
+            </p>
           </div>
 
           <div className="shimmer p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="h-4 w-4 text-[#78B288]" />
-              <p className="text-sm text-muted-foreground">Total Principal</p>
+              <p className="text-sm text-muted-foreground">Yield Routing</p>
             </div>
-            {totalPrincipal !== undefined ? (
-              <p className="text-2xl font-bold">
-                {formatUnits(totalPrincipal, 6)} USDC
-              </p>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-5 w-5 animate-spin text-[#78B288]" />
-                <p className="text-lg text-muted-foreground">Loading...</p>
-              </div>
-            )}
+            <p className="text-2xl font-bold text-[#78B288]">100% to Public Goods</p>
           </div>
 
           <div className="shimmer p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <Users className="h-4 w-4 text-[#78B288]" />
-              <p className="text-sm text-muted-foreground">Total Yield Donated</p>
+              <p className="text-sm text-muted-foreground">Recipients</p>
             </div>
-            {totalYieldDonated !== undefined ? (
-              <p className="text-2xl font-bold text-[#78B288]">
-                {formatUnits(totalYieldDonated, 6)} USDC
-              </p>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-5 w-5 animate-spin text-[#78B288]" />
-                <p className="text-lg text-muted-foreground">Loading...</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <Separator className="my-6" />
-
-        {/* Yield Impact Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-4 bg-secondary/50 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-1">Yield vs Principal Ratio</p>
-            <p className="text-xl font-bold text-[#78B288]">
-              {totalPrincipal && totalYieldDonated && totalPrincipal > 0n
-                ? ((Number(totalYieldDonated) / Number(totalPrincipal)) * 100).toFixed(2)
-                : '0.00'}
-              %
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              All yield goes to public goods
-            </p>
-          </div>
-
-          <div className="p-4 bg-secondary/50 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-1">Current Allocation</p>
-            <p className="text-xl font-bold">
-              {realAssets && totalPrincipal && realAssets > 0n
-                ? ((Number(totalPrincipal) / Number(realAssets)) * 100).toFixed(2)
-                : '100.00'}
-              %
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Principal protected, yield donated
-            </p>
+            <p className="text-2xl font-bold">{activeStrategy.recipients.length}</p>
           </div>
         </div>
       </Card>
 
-      {/* Active Markets */}
-      {marketCount !== undefined && marketCount > 0n && (
+      {/* How Morpho + Octant V2 Works */}
+      <Card className="p-8 glass-card card-elevated bg-gradient-to-br from-[#78B288]/10 to-transparent">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-[#78B288]" />
+          How This Morpho Strategy Works (Octant V2)
+        </h3>
+        <div className="space-y-3 text-sm text-muted-foreground">
+          <p>
+            💰 <strong>Deposit into Morpho:</strong> Your assets are deposited into Morpho compounder vaults that deploy capital to Morpho lending markets
+          </p>
+          <p>
+            🔄 <strong>Auto-Compounding:</strong> Morpho optimizes yield by routing between lending pools for the best rates
+          </p>
+          <p>
+            🎁 <strong>100% Yield Donation:</strong> Via Octant V2's YieldDonatingTokenizedStrategy, all profits are automatically minted as shares for your PaymentSplitter
+          </p>
+          <p>
+            🌊 <strong>Public Goods Funding:</strong> PaymentSplitter distributes yield to your selected recipients according to configured percentages
+          </p>
+          <p>
+            🎯 <strong>ERC-4626 Standard:</strong> Your strategy shares represent proportional ownership of deposited assets plus accumulated yield
+          </p>
+        </div>
+      </Card>
+
+      {/* Deposit & Withdraw Actions */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Deposit Card */}
         <Card className="p-8 glass-card card-elevated">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold">Active Markets</h3>
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-[#78B288]" />
-              <span className="text-sm text-muted-foreground">
-                {marketCount.toString()} {Number(marketCount) === 1 ? 'market' : 'markets'}
-              </span>
-            </div>
-          </div>
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <Plus className="h-5 w-5 text-[#78B288]" />
+            Add Funds to Strategy
+          </h3>
 
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Markets are deployed ERC-4626 vaults where your assets generate yield. You can
-              harvest yield from any market at any time.
-            </p>
+            <div>
+              <label className="text-sm text-muted-foreground mb-2 block">
+                Amount ({assetDetails?.symbol})
+              </label>
+              <Input
+                type="number"
+                placeholder="0.0"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+                className="bg-secondary border-border"
+              />
+            </div>
 
-            {/* Market List - In production, this would be fetched from events */}
-            {marketIds.length === 0 ? (
-              <div className="p-6 bg-secondary/30 rounded-lg text-center">
-                <p className="text-muted-foreground mb-2">
-                  No market allocations found
+            <div className="text-xs text-muted-foreground">
+              Available deposit limit: {formatUnits(depositLimit, assetDetails?.decimals || 18)} {assetDetails?.symbol}
+            </div>
+
+            <Button
+              onClick={handleDeposit}
+              disabled={isDepositPending || !depositAmount || Number(depositAmount) <= 0}
+              className="w-full bg-[#78B288] hover:bg-[#5A8F69] text-white disabled:text-white/70 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+            >
+              {isDepositPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Deposit to Morpho
+                </>
+              )}
+            </Button>
+
+            <p className="text-xs text-muted-foreground">
+              Deposits are automatically deployed to Morpho compounder vaults and start earning optimized yield
+            </p>
+          </div>
+        </Card>
+
+        {/* Withdraw Card */}
+        <Card className="p-8 glass-card card-elevated">
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <ArrowDownCircle className="h-5 w-5 text-[#78B288]" />
+            Withdraw Funds
+          </h3>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm text-muted-foreground mb-2 block">
+                Amount ({assetDetails?.symbol})
+              </label>
+              <Input
+                type="number"
+                placeholder="0.0"
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
+                className="bg-secondary border-border"
+              />
+            </div>
+
+            <div className="text-xs text-muted-foreground">
+              Available to withdraw: {formatUnits(userAssets, assetDetails?.decimals || 18)} {assetDetails?.symbol}
+            </div>
+
+            <Button
+              onClick={handleWithdraw}
+              disabled={isWithdrawPending || !withdrawAmount || Number(withdrawAmount) <= 0 || userShares === 0n}
+              variant="outline"
+              className="w-full border-[#78B288] text-[#78B288] hover:bg-[#78B288] hover:text-white hover:scale-105 transition-all duration-300"
+            >
+              {isWithdrawPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Withdrawing...
+                </>
+              ) : (
+                <>
+                  <ArrowDownCircle className="mr-2 h-4 w-4" />
+                  Withdraw from Strategy
+                </>
+              )}
+            </Button>
+
+            <p className="text-xs text-muted-foreground">
+              Withdraw your deposited assets plus accumulated yield. Yield continues to flow to public goods.
+            </p>
+          </div>
+        </Card>
+      </div>
+
+      {/* User Position */}
+      {userShares > 0n && (
+        <Card className="p-8 glass-card card-elevated">
+          <h3 className="text-xl font-bold mb-4">Your Position</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="shimmer p-4 rounded-lg">
+              <p className="text-sm text-muted-foreground mb-1">Your Shares</p>
+              <p className="text-2xl font-bold">{formatUnits(userShares, 18)}</p>
+            </div>
+
+            <div className="shimmer p-4 rounded-lg">
+              <p className="text-sm text-muted-foreground mb-1">Your Deposited Value</p>
+              <p className="text-2xl font-bold text-[#78B288]">
+                {formatUnits(userAssets, assetDetails?.decimals || 18)} {assetDetails?.symbol}
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* PaymentSplitter Status */}
+      <Card className="p-8 glass-card card-elevated bg-gradient-to-br from-[#78B288]/5 to-transparent">
+        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+          <DollarSign className="h-6 w-6 text-[#78B288]" />
+          PaymentSplitter - Yield Distribution
+        </h2>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="shimmer p-4 rounded-lg">
+              <p className="text-sm text-muted-foreground mb-1">Splitter Balance</p>
+              <p className="text-xl font-bold text-[#78B288]">
+                {formatUnits(paymentSplitter.splitterBalance || 0n, assetDetails?.decimals || 18)} {assetDetails?.symbol}
+              </p>
+              {paymentSplitter.splitterBalance === 0n && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  💡 Yield will appear here after the strategy generates returns
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  Market IDs would be displayed here after allocations are made
+              )}
+            </div>
+
+            <div className="shimmer p-4 rounded-lg">
+              <p className="text-sm text-muted-foreground mb-1">Total Distributed</p>
+              <p className="text-xl font-bold">
+                {formatUnits(paymentSplitter.totalReleased || 0n, assetDetails?.decimals || 18)} {assetDetails?.symbol}
+              </p>
+              {paymentSplitter.totalReleased === 0n && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  💡 Click "Distribute to All" when yield is available
                 </p>
+              )}
+            </div>
+
+            <div className="shimmer p-4 rounded-lg">
+              <p className="text-sm text-muted-foreground mb-1">Splitter Address</p>
+              <code className="text-xs font-mono">
+                {PAYMENT_SPLITTER_ADDRESS.slice(0, 6)}...{PAYMENT_SPLITTER_ADDRESS.slice(-4)}
+              </code>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-4 bg-secondary/30 rounded-lg">
+            <div className="flex-1">
+              <p className="text-sm font-semibold mb-1">Distribute Yield to Recipients</p>
+              <p className="text-xs text-muted-foreground">
+                Release accumulated yield from the PaymentSplitter to all configured public goods recipients
+              </p>
+            </div>
+            <Button
+              onClick={paymentSplitter.releaseToAll}
+              disabled={paymentSplitter.isPending || paymentSplitter.splitterBalance === 0n}
+              className="bg-gradient-to-r from-[#78B288] to-[#5A8F69] text-white disabled:text-white/70 hover:scale-105 transition-all duration-300"
+            >
+              {paymentSplitter.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Distributing...
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2 h-4 w-4" />
+                  Distribute to All
+                </>
+              )}
+            </Button>
+          </div>
+
+          <div className="text-sm text-muted-foreground p-3 bg-[#78B288]/10 rounded-lg border border-[#78B288]/20">
+            <p className="font-semibold text-foreground mb-1">How Yield Distribution Works:</p>
+            <p>
+              As your Morpho strategy earns yield, 100% of profits are minted as strategy shares to the PaymentSplitter.
+              The PaymentSplitter holds these shares and can distribute them proportionally to all configured recipients when you click "Distribute to All".
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Strategy Information */}
+      <Card className="p-8 glass-card card-elevated">
+        <h2 className="text-2xl font-bold mb-4">Strategy Details</h2>
+
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-muted-foreground mb-1">Strategy Name</p>
+            <p className="text-lg font-semibold">{activeStrategy.name}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground mb-1">Strategy Address</p>
+            <div className="flex items-center gap-2">
+              <code className="text-sm font-mono bg-secondary p-2 rounded block flex-1">
+                {activeStrategy.address}
+              </code>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(activeStrategy.address);
+                  toast.success('Address copied!');
+                }}
+              >
+                Copy
+              </Button>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground mb-1">Asset</p>
+            <p className="text-lg font-semibold">{assetDetails?.symbol || 'Loading...'} ({assetAddress?.slice(0, 6)}...{assetAddress?.slice(-4)})</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground mb-1">Protocol</p>
+            <Badge variant="outline" className="border-[#78B288] text-[#78B288]">
+              Morpho via Octant V2
+            </Badge>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground mb-1">View on Explorer</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-[#78B288] text-[#78B288] hover:bg-[#78B288] hover:text-white"
+              onClick={() => window.open(`${TENDERLY_EXPLORER_URL}/address/${activeStrategy.address}`, '_blank')}
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              View on Tenderly Explorer
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Recipients List */}
+      {activeStrategy.recipients.length > 0 && (
+        <Card className="p-8 glass-card card-elevated">
+          <h3 className="text-xl font-bold mb-4">
+            Yield Recipients ({activeStrategy.recipients.length})
+          </h3>
+
+          <div className="space-y-3">
+            {activeStrategy.recipients.map((recipient, index) => (
+              <div
+                key={recipient.address}
+                className="flex justify-between items-center p-4 bg-secondary/50 rounded-lg glass-effect hover:bg-secondary/70 transition-all duration-300"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-muted-foreground">#{index + 1}</span>
+                  <div>
+                    <p className="font-semibold">{recipient.name}</p>
+                    <code className="text-xs text-muted-foreground font-mono">
+                      {recipient.address}
+                    </code>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <Badge
+                    variant="outline"
+                    className="border-[#78B288] text-[#78B288] text-sm"
+                  >
+                    {recipient.percentage}%
+                  </Badge>
+                </div>
               </div>
-            ) : (
-              marketIds.map((marketId) => (
-                <MarketCard
-                  key={marketId}
-                  marketId={marketId}
-                  getAllocation={getAllocation}
-                  getHarvestableYield={getHarvestableYield}
-                  onHarvest={handleHarvest}
-                  isLoading={isLoading}
-                />
-              ))
-            )}
+            ))}
           </div>
         </Card>
       )}
 
-      {/* No Markets Message */}
-      {(marketCount === undefined || marketCount === 0n) && (
-        <Card className="p-8 text-center glass-card card-elevated">
-          <BarChart3 className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <p className="text-muted-foreground mb-2">No active markets yet</p>
-          <p className="text-sm text-muted-foreground">
-            Allocate assets to underlying vaults to start generating yield for public goods
-          </p>
-        </Card>
-      )}
-
-      {/* Contract Addresses */}
-      <Card className="p-6 glass-card">
-        <h4 className="text-sm font-semibold mb-4">Contract Addresses</h4>
-        <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">Adapter Address</p>
-              <code className="text-xs font-mono">{MORPHO_ADAPTER_ADDRESS}</code>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                navigator.clipboard.writeText(MORPHO_ADAPTER_ADDRESS);
-                toast.success('Adapter address copied');
-              }}
-            >
-              Copy
-            </Button>
-          </div>
-
-          <Separator />
-
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">Morpho Vault Address</p>
-              <code className="text-xs font-mono">{MORPHO_VAULT_ADDRESS}</code>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                navigator.clipboard.writeText(MORPHO_VAULT_ADDRESS);
-                toast.success('Vault address copied');
-              }}
-            >
-              Copy
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      {/* Info Card */}
-      <Card className="p-6 glass-card bg-gradient-to-r from-[#78B288]/10 to-[#5A8F69]/10 border-[#78B288]/30">
-        <div className="flex gap-4">
-          <div className="flex-shrink-0">
-            <div className="h-10 w-10 rounded-full bg-[#78B288]/20 flex items-center justify-center">
-              <TrendingUp className="h-5 w-5 text-[#78B288]" />
-            </div>
-          </div>
+      {/* Next Steps */}
+      <Card className="p-6 glass-card border-[#78B288]/30">
+        <div className="flex items-start gap-4">
+          <div className="text-3xl">📊</div>
           <div>
-            <h4 className="font-semibold mb-1">How Morpho Vaults V2 Works</h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Your principal is deposited into ERC-4626 vaults (Aave, etc.) where it generates
-              yield. The adapter uses high-watermark accounting to track your principal separately
-              from yield. 100% of realized yield is automatically routed to the PaymentSplitter
-              for distribution to public goods recipients. Your principal can always be withdrawn
-              in full.
+            <h3 className="font-semibold mb-1">Managing Your Strategy</h3>
+            <p className="text-sm text-muted-foreground">
+              Your Morpho strategy is deployed and actively routing yield to public goods via Octant V2.
+              The PaymentSplitter will distribute accumulated yield to your recipients. You can monitor
+              the strategy performance on Morpho's analytics dashboard.
             </p>
           </div>
         </div>
       </Card>
-    </div>
-  );
-}
-
-/**
- * Individual Market Card Component
- */
-interface MarketCardProps {
-  marketId: `0x${string}`;
-  getAllocation: (marketId: `0x${string}`) => any;
-  getHarvestableYield: (marketId: `0x${string}`) => any;
-  onHarvest: (marketId: `0x${string}`) => void;
-  isLoading: boolean;
-}
-
-function MarketCard({
-  marketId,
-  getAllocation,
-  getHarvestableYield,
-  onHarvest,
-  isLoading,
-}: MarketCardProps) {
-  const allocationData = getAllocation(marketId);
-  const harvestableData = getHarvestableYield(marketId);
-
-  return (
-    <div className="p-6 bg-secondary/50 rounded-lg glass-effect hover:bg-secondary/70 transition-all duration-300">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">Market ID</p>
-          <code className="text-xs font-mono">{marketId.slice(0, 10)}...{marketId.slice(-8)}</code>
-        </div>
-        <Badge variant="outline" className="border-[#78B288] text-[#78B288]">
-          Active
-        </Badge>
-      </div>
-
-      {allocationData?.data && (
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Principal Deposited</p>
-            <p className="text-sm font-semibold">
-              {formatUnits(allocationData.data.principalDeposited, 6)} USDC
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Total Shares</p>
-            <p className="text-sm font-semibold">
-              {formatUnits(allocationData.data.totalShares, 18)}
-            </p>
-          </div>
-        </div>
-      )}
-
-      <Separator className="my-4" />
-
-      <div className="flex justify-between items-center">
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">Harvestable Yield</p>
-          {harvestableData?.data !== undefined ? (
-            <p className="text-lg font-bold text-[#78B288]">
-              {formatUnits(harvestableData.data, 6)} USDC
-            </p>
-          ) : (
-            <Loader2 className="h-4 w-4 animate-spin text-[#78B288]" />
-          )}
-        </div>
-
-        <Button
-          onClick={() => onHarvest(marketId)}
-          disabled={isLoading || !harvestableData?.data || harvestableData.data === 0n}
-          className="bg-[#78B288] hover:bg-[#5A8F69] shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-          size="sm"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Harvesting...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Harvest Yield
-            </>
-          )}
-        </Button>
-      </div>
     </div>
   );
 }

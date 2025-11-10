@@ -7,13 +7,10 @@ import {PaymentSplitterFactory} from "../src/PaymentSplitterFactory.sol";
 
 contract DeployPaymentSplitterFactory is Script {
     function run() external {
-        // Use ENV: PRIVATE_KEY (or broadcast with --private-key)
         vm.startBroadcast();
 
-        // 1) Deploy implementation (initializable)
         PaymentSplitter implementation = new PaymentSplitter();
 
-        // 2) Deploy factory pointing to implementation
         PaymentSplitterFactory factory = new PaymentSplitterFactory(address(implementation));
 
         vm.stopBroadcast();

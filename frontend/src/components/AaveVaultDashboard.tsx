@@ -2,11 +2,11 @@ import { useAccount } from 'wagmi';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { useAaveVault, useDepositToVault, useClaimAaveRewards } from '@/hooks/useAaveVault';
 import { useRevenueSplitter } from '@/hooks/useRevenueSplitter';
 import { useAaveAPY } from '@/hooks/useAaveAPY';
+import { useUserAaveVaults } from '@/hooks/useUserAaveVaults';
 import { formatUnits, parseUnits } from 'viem';
 import { SUPPORTED_ASSETS } from '@/utils/constants';
 import { toast } from 'sonner';
@@ -21,8 +21,20 @@ import { useAppStore } from '@/store';
  */
 export function AaveVaultDashboard() {
   const { address } = useAccount();
-  const { deployedStrategies } = useAppStore();
+  const { deployedStrategies: localStrategies } = useAppStore();
   const [depositAmount, setDepositAmount] = useState('');
+
+  // Fetch Aave vaults from blockchain
+  const { vaults: onChainVaults } = useUserAaveVaults(address);
+
+  // Merge vaults (prefer on-chain)
+  const deployedStrategies = useMemo(() => {
+    if (onChainVaults.length > 0) {
+      return onChainVaults;
+    }
+    // Fall back to local storage, filtering for Aave strategies only
+    return localStrategies.filter(s => s.protocol === 'Aave' && s.address && s.address.length === 42);
+  }, [onChainVaults, localStrategies]);
 
   // Find the most recently deployed Aave vault
   const activeVault = useMemo(() => {
@@ -53,9 +65,9 @@ export function AaveVaultDashboard() {
   }, [deployedStrategies, activeVault]);
 
   const splitterAddress = useMemo(() => {
-    // In factory deployment, the splitter is stored separately
-    // For now, we'll need to get it from the factory's getSplitterForVault
-    // TODO: Fetch splitter address from factory
+    // Vaults deployed via AaveVaultProxyDeployer don't have built-in splitters
+    // Only vaults deployed via AaveVaultFactory have revenue splitters
+    // For proxy-deployed vaults, the owner can directly withdraw fees and claim rewards
     return null as `0x${string}` | null;
   }, [activeVault]);
 
@@ -265,8 +277,8 @@ export function AaveVaultDashboard() {
             </p>
 
             <Button
-              onClick={claimRewards}
-              disabled={isClaimPending}
+              onClick={() => address && claimRewards(address)}
+              disabled={isClaimPending || !address}
               className="w-full bg-gradient-to-r from-[#78B288] to-[#5A8F69] hover:scale-105 transition-all duration-300"
             >
               {isClaimPending ? (
@@ -326,7 +338,7 @@ export function AaveVaultDashboard() {
             <Button
               onClick={withdrawFees}
               disabled={isPending || isConfirming || !splitterAddress}
-              className="bg-[#78B288] hover:bg-[#5A8F69] shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+              className="bg-[#78B288] hover:bg-[#5A8F69] text-white disabled:text-white/70 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
             >
               {isPending || isConfirming ? (
                 <>
@@ -342,7 +354,7 @@ export function AaveVaultDashboard() {
               onClick={claimSplitterRewards}
               disabled={isPending || isConfirming || !splitterAddress}
               variant="outline"
-              className="border-[#78B288] text-[#78B288] hover:bg-[#78B288] hover:text-white hover:scale-105 transition-all duration-300"
+              className="border-[#78B288] text-[#78B288] disabled:text-[#78B288]/50 hover:bg-[#78B288] hover:text-white hover:scale-105 transition-all duration-300"
             >
               {isPending || isConfirming ? (
                 <>
@@ -358,7 +370,7 @@ export function AaveVaultDashboard() {
               onClick={splitRevenue}
               disabled={isPending || isConfirming || !splitterAddress}
               variant="default"
-              className="bg-gradient-to-r from-[#78B288] to-[#5A8F69] hover:scale-105 transition-all duration-300"
+              className="bg-gradient-to-r from-[#78B288] to-[#5A8F69] text-white disabled:text-white/70 hover:scale-105 transition-all duration-300"
             >
               {isPending || isConfirming ? (
                 <>
@@ -372,9 +384,22 @@ export function AaveVaultDashboard() {
           </div>
 
           {!splitterAddress && (
-            <p className="text-sm text-[#ff9800]">
-              Splitter address not yet configured. Revenue management will be available after deployment.
-            </p>
+            <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+              <p className="text-sm text-blue-400 font-semibold mb-2">
+                ℹ️ Direct Fee Management
+              </p>
+              <p className="text-xs text-muted-foreground mb-2">
+                This vault was deployed without an integrated revenue splitter. As the vault owner, you can:
+              </p>
+              <ul className="text-xs text-muted-foreground list-disc ml-4 space-y-1">
+                <li><strong>Claim Rewards:</strong> Use the "Claim Rewards" button above to claim Aave incentive rewards directly to your wallet</li>
+                <li><strong>Withdraw Fees:</strong> Call <code className="text-blue-400">withdrawFees(to, amount)</code> directly on the vault contract to withdraw accumulated yield fees</li>
+                <li><strong>Manual Distribution:</strong> After withdrawing fees, manually distribute them to your configured recipients</li>
+              </ul>
+              <p className="text-xs text-blue-400 mt-2">
+                💡 Tip: For automatic multi-recipient distribution, deploy a new vault using the AaveVaultFactory which includes built-in revenue splitting.
+              </p>
+            </div>
           )}
         </div>
       </Card>

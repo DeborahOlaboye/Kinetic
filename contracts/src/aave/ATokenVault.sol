@@ -89,7 +89,8 @@ contract ATokenVault is ERC4626Upgradeable, OwnableUpgradeable, EIP712Upgradeabl
         __EIP712_init(shareName, "1");
         _setFee(initialFee);
 
-        UNDERLYING.safeApprove(address(AAVE_POOL), type(uint256).max);
+        // Using forceApprove for OpenZeppelin v5 compatibility
+        UNDERLYING.forceApprove(address(AAVE_POOL), type(uint256).max);
 
         _handleDeposit(initialLockDeposit, address(this), msg.sender, false);
     }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { usePublicClient } from 'wagmi';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
-import { MORPHO_FACTORY_ADDRESS, SKY_FACTORY_ADDRESS, PAYMENT_SPLITTER_ADDRESS, AAVE_POOL_ADDRESS } from '@/utils/constants';
+import { MORPHO_FACTORY_ADDRESS, PAYMENT_SPLITTER_ADDRESS, AAVE_POOL_ADDRESS } from '@/utils/constants';
 
 export function CheckContracts() {
   const [results, setResults] = useState<Record<string, string>>({});

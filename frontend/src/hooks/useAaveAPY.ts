@@ -19,7 +19,7 @@ export function useAaveAPY(assetAddress?: `0x${string}`) {
   // Read reserve data from Aave v3 Pool
   const { data: reserveData, isLoading, refetch } = useReadContract({
     address: AAVE_POOL_ADDRESS,
-    abi: AavePoolABI as any,
+    abi: (AavePoolABI as any).abi || AavePoolABI,
     functionName: 'getReserveData',
     args: assetAddress ? [assetAddress] : undefined,
     query: {
@@ -33,24 +33,32 @@ export function useAaveAPY(assetAddress?: `0x${string}`) {
     if (!reserveData) return 0;
 
     try {
-      // reserveData is a tuple, currentLiquidityRate is at index 2
-      const liquidityRate = (reserveData as any)[2]; // currentLiquidityRate
-      
-      if (!liquidityRate || liquidityRate === 0n) return 0;
+      // reserveData is a struct ReserveData - try both property and array access
+      const liquidityRate = (reserveData as any).currentLiquidityRate || (reserveData as any)[2];
+
+      if (!liquidityRate || liquidityRate === 0n) {
+        console.warn('No liquidity rate found in reserve data:', reserveData);
+        return 0;
+      }
 
       // Convert from ray (1e27) to percentage
       // liquidityRate is annual rate in ray units
       const RAY = BigInt(10 ** 27);
       const rateInBigInt = BigInt(liquidityRate);
-      
+
       // Convert to percentage with 2 decimal precision
       // Multiply by 10000 to preserve 2 decimal places, then divide
       const apyBigInt = (rateInBigInt * BigInt(10000)) / RAY;
       const apyNumber = Number(apyBigInt) / 100;
 
+      console.log('Aave APY calculated:', {
+        liquidityRate: liquidityRate.toString(),
+        apyNumber,
+      });
+
       return apyNumber;
     } catch (error) {
-      console.error('Error calculating APY:', error);
+      console.error('Error calculating APY:', error, reserveData);
       return 0;
     }
   }, [reserveData]);

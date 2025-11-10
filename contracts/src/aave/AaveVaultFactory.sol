@@ -110,8 +110,8 @@ contract AaveVaultFactory {
         // Transfer initial lock deposit from user
         IERC20(asset).safeTransferFrom(msg.sender, address(this), initialLockDeposit);
 
-        // Approve for vault deployment
-        IERC20(asset).safeApprove(address(this), initialLockDeposit);
+        // Approve for vault deployment (using forceApprove for OpenZeppelin v5)
+        IERC20(asset).forceApprove(address(this), initialLockDeposit);
 
         // Generate vault metadata
         string memory shareName = string(abi.encodePacked("Kinetic Aave ", assetSymbol, " Vault"));

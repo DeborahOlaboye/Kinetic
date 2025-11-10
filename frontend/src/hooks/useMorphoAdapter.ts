@@ -108,7 +108,7 @@ export function useMorphoAdapter() {
           allocationData,
           assets,
           '0x00000000', // selector (unused)
-          address, // sender
+          address as `0x${string}`, // sender
         ],
       });
 
@@ -145,7 +145,7 @@ export function useMorphoAdapter() {
           deallocationData,
           assets,
           '0x00000000', // selector (unused)
-          address, // sender
+          address as `0x${string}`, // sender
         ],
       });
 
@@ -203,8 +203,8 @@ export function useMorphoAdapter() {
 
 // Helper function for encoding ABI parameters (simplified)
 function encodeAbiParameters(
-  types: Array<{ type: string }>,
-  values: any[]
+  _types: Array<{ type: string }>,
+  _values: any[]
 ): `0x${string}` {
   // This is a simplified version - in production use viem's encodeAbiParameters
   // For now, return a placeholder that demonstrates the structure

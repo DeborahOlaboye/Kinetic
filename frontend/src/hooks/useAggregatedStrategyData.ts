@@ -1,13 +1,23 @@
 import { useReadContracts } from 'wagmi';
-import { useAppStore } from '@/store';
 import { useMemo } from 'react';
+import type { Strategy } from '@/store';
 
-export function useAggregatedStrategyData() {
-  const { deployedStrategies } = useAppStore();
+export function useAggregatedStrategyData(deployedStrategies: Strategy[] = []) {
 
-  // Build contract calls for all strategies
+  // Filter out invalid addresses (transaction hashes are 66 chars, addresses are 42 chars)
+  const validStrategies = useMemo(() => {
+    return deployedStrategies.filter(strategy => {
+      const isValidAddress = strategy.address && strategy.address.length === 42;
+      if (!isValidAddress) {
+        console.warn(`Invalid strategy address (likely transaction hash): ${strategy.address}`);
+      }
+      return isValidAddress;
+    });
+  }, [deployedStrategies]);
+
+  // Build contract calls for all valid strategies
   const contracts = useMemo(() => {
-    return deployedStrategies.flatMap((strategy) => [
+    return validStrategies.flatMap((strategy) => [
       {
         address: strategy.address as `0x${string}`,
         abi: [
@@ -22,7 +32,7 @@ export function useAggregatedStrategyData() {
         functionName: 'totalAssets' as const,
       },
     ]);
-  }, [deployedStrategies]);
+  }, [validStrategies]);
 
   const { data, isLoading } = useReadContracts({
     contracts,
@@ -32,9 +42,19 @@ export function useAggregatedStrategyData() {
     },
   });
 
+  // Debug logging
+  console.log('useAggregatedStrategyData Debug:', {
+    strategiesCount: deployedStrategies.length,
+    validStrategiesCount: validStrategies.length,
+    contractsCount: contracts.length,
+    dataCount: data?.length,
+    strategies: validStrategies.map(s => s.address),
+  });
+
   // Aggregate the results
   const aggregatedData = useMemo(() => {
     if (!data || data.length === 0) {
+      console.warn('useAggregatedStrategyData: No data available');
       return {
         totalAssets: BigInt(0),
         totalYield: BigInt(0),
@@ -43,11 +63,21 @@ export function useAggregatedStrategyData() {
     }
 
     let totalAssets = BigInt(0);
-    const strategies = deployedStrategies.map((strategy, index) => {
+    const strategies = validStrategies.map((strategy, index) => {
       const result = data[index];
       const currentAssets = result?.status === 'success' && result.result
         ? BigInt(result.result as bigint)
         : BigInt(0);
+
+      console.log(`Strategy ${strategy.address}:`, {
+        status: result?.status,
+        currentAssets: currentAssets.toString(),
+        error: result?.status === 'failure' ? result.error : undefined,
+      });
+
+      if (result?.status === 'failure') {
+        console.error(`Failed to fetch totalAssets for ${strategy.address}:`, result.error);
+      }
 
       const deposited = BigInt(strategy.totalDeposited || '0');
       const yieldGenerated = currentAssets > deposited
@@ -73,7 +103,7 @@ export function useAggregatedStrategyData() {
       totalYield,
       strategies,
     };
-  }, [data, deployedStrategies]);
+  }, [data, validStrategies]);
 
   return {
     ...aggregatedData,

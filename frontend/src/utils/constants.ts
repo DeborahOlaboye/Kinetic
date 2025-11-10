@@ -3,6 +3,9 @@ export const SUPPORTED_CHAIN_ID = 1; // Mainnet (forked on Tenderly)
 export const TENDERLY_RPC = import.meta.env.VITE_TENDERLY_RPC ||
   "https://virtual.mainnet.eu.rpc.tenderly.co/82c86106-662e-4d7f-a974-c311987358ff";
 
+// Tenderly Explorer URL (Chain ID 8 - Virtual TestNet)
+export const TENDERLY_EXPLORER_URL = "https://dashboard.tenderly.co/explorer/vnet/8";
+
 // Contract addresses (Octant v2 on Mainnet)
 // Get addresses from environment variables or use placeholders
 // For production, set VITE_MORPHO_FACTORY_ADDRESS and VITE_SKY_FACTORY_ADDRESS in .env
@@ -73,8 +76,24 @@ export const PAYMENT_SPLITTER_FACTORY_ADDRESS = (
 
 // Octant V2 Deployer (wrapper for deploying Morpho/Sky strategies)
 export const OCTANT_V2_DEPLOYER_ADDRESS = (
-  import.meta.env.VITE_OCTANT_V2_DEPLOYER_ADDRESS ||
-  "0x0000000000000000000000000000000000000000"
+  import.meta.env.VITE_OCTANT_V2_DEPLOYER ||
+  "0xeD1b3CE69885027814C9046F4d9BC1C69E9Df4f3"
+) as `0x${string}`;
+
+// Octant V2 Factory Addresses
+export const MORPHO_COMPOUNDER_FACTORY_ADDRESS = (
+  import.meta.env.VITE_MORPHO_FACTORY ||
+  "0xD09f14DD0a0ec20CAC1eD7b2Fd5A68f440C5903D"
+) as `0x${string}`;
+
+export const SKY_COMPOUNDER_FACTORY_ADDRESS = (
+  import.meta.env.VITE_SKY_FACTORY ||
+  "0x925E81cA08220cc31554981E5baeE6B57270cbEb"
+) as `0x${string}`;
+
+export const YIELD_DONATING_TOKENIZED_STRATEGY_ADDRESS = (
+  import.meta.env.VITE_YIELD_DONATING_TOKENIZED_STRATEGY ||
+  "0x7De92dC71F857fd9AB2Abf76F7AfC71394FD8B22"
 ) as `0x${string}`;
 
 // Morpho Vaults V2 Integration
