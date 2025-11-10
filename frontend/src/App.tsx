@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router';
+import { BrowserRouter, Routes, Route, Link } from 'react-router';
 import { Home } from './pages/Home';
 import { Deploy } from './pages/Deploy';
 import { Dashboard } from './pages/Dashboard';
@@ -13,12 +13,12 @@ function App() {
 			<div className="min-h-screen bg-background text-foreground">
 				<nav className="border-b border-border p-4 bg-secondary/50">
 					<div className="container mx-auto flex justify-between items-center">
-						<a href="/" className="text-2xl font-bold hover:text-secondary-foreground transition-colors">
+						<Link to="/" className="text-2xl font-bold hover:text-secondary-foreground transition-colors">
 							Kinetic
-						</a>
+						</Link>
 						<div className="flex gap-6 items-center">
-							<a href="/deploy" className="hover:text-[#78B288] transition-colors">Deploy Strategy</a>
-							<a href="/dashboard" className="hover:text-[#78B288] transition-colors">Your Impact</a>
+							<Link to="/deploy" className="hover:text-[#78B288] transition-colors">Deploy Strategy</Link>
+							<Link to="/dashboard" className="hover:text-[#78B288] transition-colors">Your Impact</Link>
 							<ConnectWallet />
 						</div>
 					</div>
