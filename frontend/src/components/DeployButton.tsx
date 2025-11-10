@@ -3,7 +3,7 @@ import { useDeployWithSplitter } from '@/hooks/useDeployWithSplitter';
 import { useDeployStrategyDirect } from '@/hooks/useDeployStrategyDirect';
 import { useDeployAaveVault } from '@/hooks/useDeployAaveVault';
 import { useDeployOctantV2Strategy } from '@/hooks/useDeployOctantV2Strategy';
-import { ProtocolType, AAVE_VAULT_PROXY_DEPLOYER, USDC_ADDRESS, SUPPORTED_ASSETS, PAYMENT_SPLITTER_ADDRESS } from '@/utils/constants';
+import { ProtocolType, AAVE_VAULT_PROXY_DEPLOYER, SUPPORTED_ASSETS, PAYMENT_SPLITTER_ADDRESS } from '@/utils/constants';
 import { Recipient } from '@/components/RecipientForm';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, usePublicClient } from 'wagmi';
 import { toast } from 'sonner';
@@ -37,8 +37,8 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
     },
   ] as const;
 
-  const { writeContract: writeApprove, data: approveHash, isPending: isApprovePending } = useWriteContract();
-  const { isLoading: isApproveConfirming, isSuccess: isApproveSuccess } = useWaitForTransactionReceipt({ hash: approveHash });
+  const { writeContractAsync: writeApproveAsync, data: approveHash, isPending: isApprovePending } = useWriteContract();
+  const { isLoading: isApproveConfirming } = useWaitForTransactionReceipt({ hash: approveHash });
 
   // Toggle: Use direct deployment (single recipient) or splitter (multi-recipient)
   const [useSplitter, setUseSplitter] = useState(true);
@@ -304,7 +304,6 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
   }, [protocol, address, publicClient, selectedAsset.address, approveHash, initialLockDeposit]);
 
   const isDisabled = disabled || !isValid || isPending || isConfirming;
-  const needsApprove = protocol === ProtocolType.AAVE && allowance < initialLockDeposit;
 
   return (
     <div className="space-y-4">
@@ -382,7 +381,7 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
                 // First, reset allowance to 0 (required for some tokens like USDC)
                 if (allowance > 0n) {
                   toast.info('Resetting allowance to 0...');
-                  const resetHash = await writeApprove({
+                  const resetHash = await writeApproveAsync({
                     address: selectedAsset.address as `0x${string}`,
                     abi: ERC20_ABI as any,
                     functionName: 'approve',
@@ -394,7 +393,7 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
                 // Then approve the required amount
                 toast.info('Approving USDC spend...');
                 const approvalAmount = initialLockDeposit * BigInt(2); // Approve 2x for safety
-                await writeApprove({
+                await writeApproveAsync({
                   address: selectedAsset.address as `0x${string}`,
                   abi: ERC20_ABI as any,
                   functionName: 'approve',
@@ -406,7 +405,7 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
               }
             }}
             disabled={isDisabled || checkingAllowance || allowance >= initialLockDeposit || initialLockDeposit === 0n || isApprovePending || isApproveConfirming}
-            className="w-full"
+            className="w-full text-black disabled:text-black/70"
             size="sm"
           >
             {isApprovePending && 'Approving...'}
@@ -419,7 +418,7 @@ export function DeployButton({ protocol, recipients, disabled }: DeployButtonPro
       <Button
         onClick={handleDeploy}
         disabled={isDisabled || (protocol === ProtocolType.AAVE && (initialLockDeposit === 0n || allowance < initialLockDeposit))}
-        className="w-full"
+        className="w-full text-black disabled:text-black/70"
         size="lg"
       >
         {step === 'deploying_splitter' && 'Deploying Splitter...'}

@@ -104,8 +104,8 @@ contract AaveVaultProxyDeployer {
         ERC1967Proxy proxy = new ERC1967Proxy(implementation, emptyInitData);
         vault = address(proxy);
 
-        // Approve vault to pull initial deposit BEFORE initializing
-        IERC20(asset).safeApprove(vault, initialDeposit);
+        // Approve vault to pull initial deposit BEFORE initializing (using forceApprove for OpenZeppelin v5)
+        IERC20(asset).forceApprove(vault, initialDeposit);
 
         // Now initialize the vault (can call directly since proxy is deployed)
         ATokenVault(vault).initialize(

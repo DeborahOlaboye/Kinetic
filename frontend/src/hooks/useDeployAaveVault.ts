@@ -42,7 +42,7 @@ export function useDeployAaveVault() {
 
   const publicClient = usePublicClient();
   const { data: hash, writeContractAsync, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
 
   const deployVault = async (params: DeployVaultParams) => {
     setError(null);

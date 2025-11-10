@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { ProtocolType } from "@/utils/constants";
 
-interface Strategy {
+export interface Strategy {
   address: string;
   protocol: ProtocolType;
   name: string;
@@ -26,6 +26,8 @@ interface AppState {
   selectedStrategy: Strategy | null;
   addStrategy: (strategy: Omit<Strategy, 'totalDeposited' | 'yieldGenerated'> & { totalDeposited: bigint; yieldGenerated: bigint }) => void;
   setSelectedStrategy: (strategy: Strategy | null) => void;
+  removeStrategy: (address: string) => void;
+  clearInvalidStrategies: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -52,7 +54,15 @@ export const useAppStore = create<AppState>()(
         });
       },
       setSelectedStrategy: (strategy) =>
-        set({ selectedStrategy: strategy })
+        set({ selectedStrategy: strategy }),
+      removeStrategy: (address) =>
+        set((state) => ({
+          deployedStrategies: state.deployedStrategies.filter(s => s.address !== address)
+        })),
+      clearInvalidStrategies: () =>
+        set((state) => ({
+          deployedStrategies: state.deployedStrategies.filter(s => s.address && s.address.length === 42)
+        }))
     }),
     {
       name: 'kinetic-storage', // localStorage key

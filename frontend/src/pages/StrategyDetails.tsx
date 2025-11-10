@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AaveVaultDashboard } from '@/components/AaveVaultDashboard';
+import { MorphoDashboard } from '@/components/MorphoDashboard';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft } from 'lucide-react';
 import { KineticParticles } from '@/components/KineticParticles';
@@ -73,11 +74,7 @@ export function StrategyDetails() {
           {/* Protocol-Specific Dashboard */}
           {strategy.protocol === 'Aave' && <AaveVaultDashboard />}
 
-          {strategy.protocol === 'Morpho' && (
-            <Card className="p-8 text-center glass-card card-elevated">
-              <p className="text-muted-foreground">Morpho dashboard coming soon...</p>
-            </Card>
-          )}
+          {strategy.protocol === 'Morpho' && <MorphoDashboard />}
 
           {strategy.protocol !== 'Aave' && strategy.protocol !== 'Morpho' && (
             <div className="space-y-6">

@@ -1,10 +1,7 @@
 import { http, createConfig } from 'wagmi'
 import { mainnet, sepolia, base, baseSepolia } from 'wagmi/chains'
-import { injected, walletConnect } from 'wagmi/connectors'
+import { injected } from 'wagmi/connectors'
 import { defineChain } from 'viem'
-
-// Get WalletConnect project ID from environment or use a placeholder
-const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID'
 
 // Tenderly virtual mainnet RPC (fork of mainnet for testing without gas costs)
 const TENDERLY_RPC = import.meta.env.VITE_TENDERLY_RPC ||

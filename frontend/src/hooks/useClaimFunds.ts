@@ -19,7 +19,7 @@ export function useClaimETH() {
       abi: PaymentSplitterABI,
       functionName: 'release',
       args: [payeeAddress],
-      chainId: SPLITTER_CHAIN_ID,
+      chainId: SPLITTER_CHAIN_ID as 1 | 8 | 11155111 | 8453 | 84532,
     });
   };
 
@@ -49,7 +49,7 @@ export function useClaimToken() {
       abi: PaymentSplitterABI,
       functionName: 'release',
       args: [tokenAddress, payeeAddress],
-      chainId: SPLITTER_CHAIN_ID,
+      chainId: SPLITTER_CHAIN_ID as 1 | 8 | 11155111 | 8453 | 84532,
     });
   };
 

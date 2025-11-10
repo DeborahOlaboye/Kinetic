@@ -18,7 +18,6 @@ export function useDeployWithSplitter() {
   const [step, setStep] = useState<'idle' | 'deploying_splitter' | 'deploying_strategy' | 'complete'>('idle');
   const [splitterAddress, setSplitterAddress] = useState<`0x${string}` | null>(null);
   const [splitterHash, setSplitterHash] = useState<`0x${string}` | null>(null);
-  const [strategyAddress, setStrategyAddress] = useState<`0x${string}` | null>(null);
   const [deployParams, setDeployParams] = useState<DeployParams | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
@@ -54,7 +53,7 @@ export function useDeployWithSplitter() {
           abi: PaymentSplitterFactoryABI as any,
           functionName: 'createSplitter',
           args: [payees, shares],
-          chainId: SPLITTER_CHAIN_ID,
+          chainId: SPLITTER_CHAIN_ID as 1 | 8 | 11155111 | 8453 | 84532,
         });
         setSplitterHash(hash as `0x${string}`);
 
@@ -68,7 +67,6 @@ export function useDeployWithSplitter() {
             abi: PaymentSplitterFactoryABI as any,
             functionName: 'getUserSplitters',
             args: [params.userAddress],
-            chainId: SPLITTER_CHAIN_ID,
           })) as `0x${string}`[];
           if (userSplitters && userSplitters.length > 0) {
             targetSplitter = userSplitters[userSplitters.length - 1] as `0x${string}`;
@@ -104,13 +102,12 @@ export function useDeployWithSplitter() {
     step,
     splitterAddress,
     splitterHash,
-    strategyAddress,
+    strategyAddress: null, // Strategy address is not available in useDeployStrategy
     isPending: isSplitterPending || strategy.isPending,
     isConfirming: strategy.isConfirming,
     isSuccess: step === 'complete',
     error: error || strategy.error,
     strategyHash: strategy.hash,
-    deployParams,
     deployParams,
   };
 }

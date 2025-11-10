@@ -1,62 +1,84 @@
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt, usePublicClient } from 'wagmi';
-import AaveATokenVaultABI from '@/abis/AaveATokenVault.json';
+import MorphoCompounderStrategyABI from '@/abis/MorphoCompounderStrategy.json';
 import { toast } from 'sonner';
 
 /**
- * Hook for reading Aave ERC-4626 vault data
+ * Hook for reading Morpho Compounder Strategy data (Octant V2)
  *
- * @param vaultAddress - Address of the deployed vault
+ * @param strategyAddress - Address of the deployed Morpho strategy
  * @param userAddress - User's wallet address (optional)
- * @returns Vault data including total assets, user shares, and asset address
+ * @returns Strategy data including total assets, user shares, and asset address
  *
  * @example
  * ```typescript
- * const { totalAssets, userShares, userAssets, assetAddress } = useAaveVault(
+ * const { totalAssets, userShares, userAssets, assetAddress } = useMorphoStrategy(
  *   '0x1234...',
  *   address
  * );
  * ```
  */
-export function useAaveVault(vaultAddress?: `0x${string}`, userAddress?: `0x${string}`) {
-  // Read total assets in vault
+export function useMorphoStrategy(strategyAddress?: `0x${string}`, userAddress?: `0x${string}`) {
+  // Read total assets in strategy
   const { data: totalAssets, refetch: refetchTotalAssets } = useReadContract({
-    address: vaultAddress,
-    abi: (AaveATokenVaultABI as any).abi || AaveATokenVaultABI,
+    address: strategyAddress,
+    abi: MorphoCompounderStrategyABI as any,
     functionName: 'totalAssets',
     query: {
-      enabled: !!vaultAddress,
+      enabled: !!strategyAddress,
     },
   });
 
   // Read user's share balance
   const { data: userShares, refetch: refetchUserShares } = useReadContract({
-    address: vaultAddress,
-    abi: (AaveATokenVaultABI as any).abi || AaveATokenVaultABI,
+    address: strategyAddress,
+    abi: MorphoCompounderStrategyABI as any,
     functionName: 'balanceOf',
     args: userAddress ? [userAddress] : undefined,
     query: {
-      enabled: !!vaultAddress && !!userAddress,
+      enabled: !!strategyAddress && !!userAddress,
     },
   });
 
   // Read underlying asset address
   const { data: assetAddress } = useReadContract({
-    address: vaultAddress,
-    abi: (AaveATokenVaultABI as any).abi || AaveATokenVaultABI,
+    address: strategyAddress,
+    abi: MorphoCompounderStrategyABI as any,
     functionName: 'asset',
     query: {
-      enabled: !!vaultAddress,
+      enabled: !!strategyAddress,
     },
   });
 
   // Convert user shares to assets
   const { data: userAssets, refetch: refetchUserAssets } = useReadContract({
-    address: vaultAddress,
-    abi: (AaveATokenVaultABI as any).abi || AaveATokenVaultABI,
+    address: strategyAddress,
+    abi: MorphoCompounderStrategyABI as any,
     functionName: 'convertToAssets',
     args: userShares ? [userShares] : undefined,
     query: {
-      enabled: !!vaultAddress && !!userShares && typeof userShares === 'bigint' && userShares > 0n,
+      enabled: !!strategyAddress && !!userShares && typeof userShares === 'bigint' && userShares > 0n,
+    },
+  });
+
+  // Read available deposit limit
+  const { data: depositLimit } = useReadContract({
+    address: strategyAddress,
+    abi: MorphoCompounderStrategyABI as any,
+    functionName: 'availableDepositLimit',
+    args: userAddress ? [userAddress] : undefined,
+    query: {
+      enabled: !!strategyAddress && !!userAddress,
+    },
+  });
+
+  // Read available withdraw limit
+  const { data: withdrawLimit } = useReadContract({
+    address: strategyAddress,
+    abi: MorphoCompounderStrategyABI as any,
+    functionName: 'availableWithdrawLimit',
+    args: userAddress ? [userAddress] : undefined,
+    query: {
+      enabled: !!strategyAddress && !!userAddress,
     },
   });
 
@@ -71,17 +93,19 @@ export function useAaveVault(vaultAddress?: `0x${string}`, userAddress?: `0x${st
     userShares: (userShares as bigint) || 0n,
     userAssets: (userAssets as bigint) || 0n,
     assetAddress: assetAddress as `0x${string}` | undefined,
+    depositLimit: (depositLimit as bigint) || 0n,
+    withdrawLimit: (withdrawLimit as bigint) || 0n,
     refetchAll,
   };
 }
 
 /**
- * Hook for depositing into an Aave vault
+ * Hook for depositing into a Morpho strategy
  *
- * Requires prior approval of the asset token for the vault address
+ * Requires prior approval of the asset token for the strategy address
  * @example
  * ```typescript
- * const { deposit, approve, isPending } = useDepositToVault(vaultAddress, assetAddress);
+ * const { deposit, approve, isPending } = useDepositToMorphoStrategy(strategyAddress, assetAddress);
  *
  * // First approve
  * await approve(depositAmount);
@@ -90,14 +114,14 @@ export function useAaveVault(vaultAddress?: `0x${string}`, userAddress?: `0x${st
  * await deposit(depositAmount, userAddress);
  * ```
  */
-export function useDepositToVault(vaultAddress?: `0x${string}`, assetAddress?: `0x${string}`) {
+export function useDepositToMorphoStrategy(strategyAddress?: `0x${string}`, assetAddress?: `0x${string}`) {
   const publicClient = usePublicClient();
   const { data: hash, writeContractAsync, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
   const approve = async (amount: bigint) => {
-    if (!vaultAddress || !assetAddress) {
-      toast.error('Vault or asset address not available');
+    if (!strategyAddress || !assetAddress) {
+      toast.error('Strategy or asset address not available');
       return;
     }
 
@@ -118,7 +142,7 @@ export function useDepositToVault(vaultAddress?: `0x${string}`, assetAddress?: `
           }
         ] as const,
         functionName: 'approve',
-        args: [vaultAddress, amount],
+        args: [strategyAddress, amount],
       });
 
       if (publicClient) {
@@ -133,16 +157,16 @@ export function useDepositToVault(vaultAddress?: `0x${string}`, assetAddress?: `
   };
 
   const deposit = async (assets: bigint, receiver: `0x${string}`) => {
-    if (!vaultAddress) {
-      toast.error('Vault address not available');
+    if (!strategyAddress) {
+      toast.error('Strategy address not available');
       return;
     }
 
     try {
-      toast.info('Depositing to vault...');
+      toast.info('Depositing to Morpho strategy...');
       const depositHash = await writeContractAsync({
-        address: vaultAddress,
-        abi: (AaveATokenVaultABI as any).abi || AaveATokenVaultABI,
+        address: strategyAddress,
+        abi: MorphoCompounderStrategyABI as any,
         functionName: 'deposit',
         args: [assets, receiver],
       });
@@ -168,52 +192,47 @@ export function useDepositToVault(vaultAddress?: `0x${string}`, assetAddress?: `
 }
 
 /**
- * Hook for claiming Aave rewards from the vault
+ * Hook for withdrawing from a Morpho strategy
  *
  * @example
  * ```typescript
- * const { claimRewards, isPending } = useClaimAaveRewards(vaultAddress);
- * await claimRewards();
+ * const { withdraw, isPending } = useWithdrawFromMorphoStrategy(strategyAddress);
+ * await withdraw(withdrawAmount, userAddress, userAddress);
  * ```
  */
-export function useClaimAaveRewards(vaultAddress?: `0x${string}`) {
+export function useWithdrawFromMorphoStrategy(strategyAddress?: `0x${string}`) {
   const publicClient = usePublicClient();
   const { data: hash, writeContractAsync, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
-  const claimRewards = async (recipientAddress: `0x${string}`) => {
-    if (!vaultAddress) {
-      toast.error('Vault address not available');
-      return;
-    }
-
-    if (!recipientAddress) {
-      toast.error('Recipient address required');
+  const withdraw = async (assets: bigint, receiver: `0x${string}`, owner: `0x${string}`) => {
+    if (!strategyAddress) {
+      toast.error('Strategy address not available');
       return;
     }
 
     try {
-      toast.info('Claiming Aave rewards...');
-      const claimHash = await writeContractAsync({
-        address: vaultAddress,
-        abi: (AaveATokenVaultABI as any).abi || AaveATokenVaultABI,
-        functionName: 'claimRewards',
-        args: [recipientAddress],
+      toast.info('Withdrawing from Morpho strategy...');
+      const withdrawHash = await writeContractAsync({
+        address: strategyAddress,
+        abi: MorphoCompounderStrategyABI as any,
+        functionName: 'withdraw',
+        args: [assets, receiver, owner],
       });
 
       if (publicClient) {
-        await publicClient.waitForTransactionReceipt({ hash: claimHash });
-        toast.success('Rewards claimed successfully!');
+        await publicClient.waitForTransactionReceipt({ hash: withdrawHash });
+        toast.success('Withdrawal successful!');
       }
     } catch (err: any) {
-      console.error('Claim rewards error:', err);
-      toast.error('Failed to claim rewards: ' + err.message);
+      console.error('Withdrawal error:', err);
+      toast.error('Failed to withdraw: ' + err.message);
       throw err;
     }
   };
 
   return {
-    claimRewards,
+    withdraw,
     isPending,
     isConfirming,
     isSuccess,

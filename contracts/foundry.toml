@@ -9,13 +9,24 @@ optimizer_runs = 30_000
 via_ir = true
 allow_paths = ["src", "script", "test"]
 
-# Remappings for Aave Vault dependencies
+# Remappings for Aave Vault dependencies and Octant V2
 remappings = [
     "@openzeppelin-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
     "@aave-v3-core/=lib/aave-v3-core/contracts/",
     "@aave-v3-periphery/=lib/aave-v3-periphery/contracts/",
-    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
-    "@openzeppelin/=lib/openzeppelin-contracts/contracts/"
+    "@openzeppelin/contracts/=lib/octant-v2-core/dependencies/@openzeppelin-contracts-5.3.0/contracts/",
+    "@openzeppelin/contracts-upgradeable/=lib/octant-v2-core/dependencies/@openzeppelin-contracts-upgradeable-5.3.0/contracts/",
+    "@openzeppelin/=lib/octant-v2-core/dependencies/@openzeppelin-contracts-5.3.0/contracts/",
+    "octant-v2-core/=lib/octant-v2-core/src/",
+    "tokenized-strategy/=lib/octant-v2-core/dependencies/tokenized-strategy-3.0.4/",
+    "@tokenized-strategy-periphery/=lib/octant-v2-core/dependencies/tokenized-strategy-periphery-3.0.2/src/",
+    "solmate/=lib/octant-v2-core/dependencies/solmate-6.8.0/",
+    "solady/=lib/octant-v2-core/dependencies/solady-0.1.21/src/",
+    "forge-std/=lib/forge-std/src/",
+    "zodiac/=lib/octant-v2-core/dependencies/gnosisguild-zodiac-4.1.1/contracts/",
+    "abdk-libraries-solidity/=lib/octant-v2-core/dependencies/abdk-libraries-solidity-3.2/",
+    "solbase/=lib/octant-v2-core/dependencies/solbase-0.0.0/src/",
+    "surl/=lib/octant-v2-core/dependencies/surl-0.0.0/src/"
 ]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

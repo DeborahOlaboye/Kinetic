@@ -125,7 +125,7 @@ export function useDeployStrategy() {
             donationAddress,
             0,
           ],
-          chainId: SPLITTER_CHAIN_ID,
+          chainId: SPLITTER_CHAIN_ID as 1 | 8 | 11155111 | 8453 | 84532,
         });
         break;
 
