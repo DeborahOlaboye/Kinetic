@@ -2,7 +2,14 @@
 
 **Capital in Motion for Public Goods**
 
-Kinetic is a decentralized application that enables users to deploy yield-generating strategies on Morpho and Aave protocols via Octant V2, automatically routing all generated yield to public goods projects. Built for the Octant DeFi Hackathon 2025.
+Kinetic is a decentralized application that enables users to deploy yield-generating strategies across multiple DeFi protocols, automatically routing all generated yield to public goods projects. Built for the Octant DeFi Hackathon 2025.
+
+**Protocol Integration:**
+- **Morpho & Sky:** Integrated via Octant V2 using KineticOctantV2Deployer
+- **Aave V3:** Direct integration via custom ERC-4626 vaults with revenue splitting
+
+[![Live Demo](https://img.shields.io/badge/Demo-Live-green)](https://kinetic-dapp.vercel.app)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## 🎯 Problem & Solution
 
