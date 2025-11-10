@@ -27,12 +27,6 @@ export function PaymentSplitterDashboard() {
   const {
     totalShares,
     totalReleased,
-    splitterBalance,
-    releaseToRecipient,
-    releaseToAll,
-    isPending: isSplitterPending,
-    isConfirming: isSplitterConfirming,
-    isSuccess: isSplitterSuccess,
     refetchBalance,
   } = usePaymentSplitter(activeSplitter || undefined, undefined, deployedStrategies[deployedStrategies.length - 1]?.recipients);
 
@@ -304,7 +298,7 @@ function PayeeRow({
   isCurrentUser: boolean;
   splitterAddress?: `0x${string}`;
 }) {
-  const { totalShares } = usePaymentSplitter(splitterAddress, undefined, []);
+  usePaymentSplitter(splitterAddress, undefined, []);
   const shares = 0n; // Simplified - would need actual implementation
 
   return (

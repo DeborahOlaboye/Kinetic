@@ -102,7 +102,7 @@ export function useDeployWithSplitter() {
     step,
     splitterAddress,
     splitterHash,
-    strategyAddress: strategy.strategyAddress,
+    strategyAddress: null, // Strategy address is not available in useDeployStrategy
     isPending: isSplitterPending || strategy.isPending,
     isConfirming: strategy.isConfirming,
     isSuccess: step === 'complete',

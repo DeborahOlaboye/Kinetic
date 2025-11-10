@@ -1,4 +1,4 @@
-import { useWriteContract, useWaitForTransactionReceipt, usePublicClient } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useState, useEffect } from 'react';
 import { OCTANT_V2_DEPLOYER_ADDRESS, ProtocolType } from '@/utils/constants';
 import KineticOctantV2DeployerABI from '@/abis/KineticOctantV2Deployer.json';

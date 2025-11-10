@@ -25,10 +25,10 @@ export function Dashboard() {
   const { deployedStrategies: localStrategies, clearInvalidStrategies } = useAppStore();
 
   // Fetch Morpho/Sky strategies from blockchain
-  const { strategies: onChainMorphoSky, isLoading: isLoadingMorphoSky } = useUserStrategies(address);
+  const { strategies: onChainMorphoSky } = useUserStrategies(address);
 
   // Fetch Aave vaults from blockchain
-  const { vaults: onChainAave, isLoading: isLoadingAave } = useUserAaveVaults(address);
+  const { vaults: onChainAave } = useUserAaveVaults(address);
 
   // Merge ALL on-chain strategies (Morpho + Sky + Aave), preferring on-chain data
   const deployedStrategies = useMemo(() => {
@@ -44,9 +44,6 @@ export function Dashboard() {
 
   // Fetch real on-chain data for all strategies
   const { totalAssets, totalYield } = useAggregatedStrategyData(deployedStrategies);
-
-  // Loading state
-  const isLoadingStrategies = isLoadingMorphoSky || isLoadingAave;
 
   // Check for invalid strategies (transaction hashes instead of addresses)
   const hasInvalidStrategies = deployedStrategies.some(s => !s.address || s.address.length !== 42);
