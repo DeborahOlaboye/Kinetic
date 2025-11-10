@@ -1,74 +1,72 @@
-// SPDX-License-Identifier: UNLICENSED
-// All Rights Reserved © AaveCo
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.25;
 
-pragma solidity ^0.8.10;
-
-import {SafeERC20Upgradeable} from "@openzeppelin-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import {IERC20Upgradeable} from "@openzeppelin-upgradeable/interfaces/IERC20Upgradeable.sol";
-import {IPoolAddressesProvider} from "@aave-v3-core/interfaces/IPoolAddressesProvider.sol";
 import {ATokenVault} from "./ATokenVault.sol";
+import {IPoolAddressesProvider} from "@aave-v3-core/interfaces/IPoolAddressesProvider.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title ImmutableATokenVault
- * @author Aave Labs
- * @notice An immutable ERC-4626 vault for Aave V3, with support to add a fee on yield earned.
+ * @notice Non-upgradeable version of ATokenVault with constructor initialization
+ * @dev Extends ATokenVault with immutable configuration set at deployment
  */
-contract ImmutableATokenVault is ATokenVault {
-    using SafeERC20Upgradeable for IERC20Upgradeable;
+contract ImmutableATokenVault is ATokenVault, Ownable {
+    using SafeERC20 for IERC20;
 
     /**
-     * @dev Constructor.
-     * @param underlying The underlying ERC-20 asset.
-     * @param referralCode The Aave referral code to use for deposits from this vault.
-     * @param poolAddressesProvider The address of the Aave v3 Pool Addresses Provider.
-     * @param owner The owner of the vault to set.
-     * @param initialFee The initial fee to set, expressed in wad, where 1e18 is 100%.
-     * @param shareName The name to set for this vault's shares.
-     * @param shareSymbol The symbol to set for this vault's shares.
-     * @param initialLockDeposit The initial amount of underlying assets to deposit. Required to prevent a frontrunning
-     * attack (in underlying tokens). Note that care should be taken to provide a non-trivial amount, but this depends
-     * on the underlying asset's decimals.
+     * @notice Deploy and initialize the vault in one transaction
+     * @param underlying Asset to accept (USDC, DAI, etc.)
+     * @param referralCode Aave referral code
+     * @param poolAddressesProvider Aave PoolAddressesProvider
+     * @param initialOwner Vault owner (can update fees)
+     * @param initialFee Fee percentage (1e18 = 100%)
+     * @param shareName ERC20 name for vault shares
+     * @param shareSymbol ERC20 symbol for vault shares
+     * @param initialLockDeposit Amount to deposit and lock (prevents inflation attack)
      */
     constructor(
         address underlying,
         uint16 referralCode,
         IPoolAddressesProvider poolAddressesProvider,
-        address owner,
+        address initialOwner,
         uint256 initialFee,
         string memory shareName,
         string memory shareSymbol,
         uint256 initialLockDeposit
-    ) ATokenVault(underlying, referralCode, poolAddressesProvider) {
-        _initialize(underlying, owner, initialFee, shareName, shareSymbol, initialLockDeposit);
-    }
+    ) ATokenVault(underlying, referralCode, poolAddressesProvider) Ownable(initialOwner) {
+        // Initialize ERC20 metadata
+        _name = shareName;
+        _symbol = shareSymbol;
 
-    /**
-     * @dev Initializes the contract given that the base contract, ATokenVault, uses upgradable contracts.
-     */
-    function _initialize(
-        address underlying,
-        address owner,
-        uint256 initialFee,
-        string memory shareName,
-        string memory shareSymbol,
-        uint256 initialLockDeposit
-    ) internal virtual initializer {
-        require(owner != address(0), "ZERO_ADDRESS_NOT_VALID");
-        require(initialLockDeposit != 0, "ZERO_INITIAL_LOCK_DEPOSIT");
-        _transferOwnership(owner);
-        __ERC4626_init(IERC20Upgradeable(underlying));
-        __ERC20_init(shareName, shareSymbol);
-        __EIP712_init(shareName, "1");
+        // Set initial fee
         _setFee(initialFee);
-        // Using forceApprove for OpenZeppelin v5 compatibility
-        IERC20Upgradeable(underlying).forceApprove(address(AAVE_POOL), type(uint256).max);
-        _handleDeposit(initialLockDeposit, address(this), msg.sender, false);
+
+        // Perform initial lock deposit (prevents share inflation attack)
+        if (initialLockDeposit > 0) {
+            IERC20(underlying).safeTransferFrom(msg.sender, address(this), initialLockDeposit);
+            _deposit(initialLockDeposit, address(0xdead)); // Burn shares to dead address
+        }
+    }
+
+    // ERC20 metadata storage
+    string private _name;
+    string private _symbol;
+
+    function name() public view override returns (string memory) {
+        return _name;
+    }
+
+    function symbol() public view override returns (string memory) {
+        return _symbol;
     }
 
     /**
-     * @dev Overrides the base contract's `_disableInitializers` function to do nothing.
-     * This turns the `_disableInitializers` call in ATokenVault's constructor ineffective,
-     * allowing initialization at the ImmutableATokenVault's constructor.
+     * @notice Update fee (only owner)
+     * @param newFee Fee in basis points (1e18 = 100%)
      */
-    function _disableInitializers() internal virtual override {}
+    function setFee(uint256 newFee) external onlyOwner {
+        _setFee(newFee);
+    }
 }

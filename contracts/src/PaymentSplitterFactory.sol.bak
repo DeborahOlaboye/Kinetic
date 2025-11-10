@@ -1,48 +1,83 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.30;
+pragma solidity ^0.8.20;
 
+import {PaymentSplitter} from "./PaymentSplitter.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
-import {PaymentSplitter} from "src/PaymentSplitter.sol";
 
 /**
  * @title PaymentSplitterFactory
- * @notice Clones a PaymentSplitter implementation and initializes it with payees/shares
- * @dev Frontend calls createSplitter(payees, shares_) to get a fresh splitter per deployment
+ * @notice Factory for deploying minimal clones of PaymentSplitter
+ * @dev Uses OpenZeppelin's Clones library (ERC-1167) for gas-efficient deployment
  */
 contract PaymentSplitterFactory {
     using Clones for address;
 
+    /// @notice PaymentSplitter implementation address
     address public immutable implementation;
-    mapping(address => address[]) private _userSplitters;
-    address[] private _allSplitters;
 
-    event SplitterCreated(address indexed splitter, address indexed creator);
+    /// @notice Track all deployed splitters by user
+    mapping(address => address[]) private userSplitters;
 
-    constructor(address _implementation) {
-        require(_implementation != address(0), "impl=0");
-        implementation = _implementation;
+    /// @notice All deployed splitters
+    address[] public allSplitters;
+
+    event SplitterDeployed(
+        address indexed creator,
+        address indexed splitter,
+        uint256 recipientCount
+    );
+
+    constructor() {
+        // Deploy the implementation contract
+        implementation = address(new PaymentSplitter());
     }
 
-    function createSplitter(address[] calldata payees, uint256[] calldata shares_)
-        external
-        returns (address splitter)
-    {
-        splitter = Clones.clone(implementation);
-        PaymentSplitter(payable(splitter)).initialize(payees, shares_);
-        _userSplitters[msg.sender].push(splitter);
-        _allSplitters.push(splitter);
-        emit SplitterCreated(splitter, msg.sender);
+    /**
+     * @notice Deploy a new PaymentSplitter clone
+     * @param payees Array of recipient addresses
+     * @param shares Array of shares (must total 10000 = 100%)
+     * @return splitterAddress Address of the deployed PaymentSplitter clone
+     */
+    function createSplitter(
+        address[] calldata payees,
+        uint256[] calldata shares
+    ) external returns (address splitterAddress) {
+        require(payees.length > 0, "No payees");
+        require(payees.length == shares.length, "Length mismatch");
+
+        // Validate shares total 10000 (100%)
+        uint256 totalShares = 0;
+        for (uint256 i = 0; i < shares.length; i++) {
+            totalShares += shares[i];
+        }
+        require(totalShares == 10000, "Shares must total 10000");
+
+        // Deploy minimal clone
+        splitterAddress = implementation.clone();
+
+        // Initialize the clone
+        PaymentSplitter(payable(splitterAddress)).initialize(payees, shares);
+
+        // Track deployment
+        userSplitters[msg.sender].push(splitterAddress);
+        allSplitters.push(splitterAddress);
+
+        emit SplitterDeployed(msg.sender, splitterAddress, payees.length);
+
+        return splitterAddress;
     }
 
+    /**
+     * @notice Get all splitters created by a user
+     */
     function getUserSplitters(address user) external view returns (address[] memory) {
-        return _userSplitters[user];
+        return userSplitters[user];
     }
 
+    /**
+     * @notice Get total number of splitters deployed
+     */
     function getSplitterCount() external view returns (uint256) {
-        return _allSplitters.length;
-    }
-
-    function allSplitters(uint256 index) external view returns (address) {
-        return _allSplitters[index];
+        return allSplitters.length;
     }
 }
